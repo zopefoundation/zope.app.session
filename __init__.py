@@ -11,8 +11,7 @@
 # FOR A PARTICULAR PURPOSE.
 #
 ##############################################################################
-"""
-Session implementation using cookies
+"""Core session interfaces and implementation
 
 $Id$
 """

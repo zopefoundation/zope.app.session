@@ -35,6 +35,7 @@ class IClientIdManager(Interface):
         session id will be preserved. Depending on the specific method,
         further action might be necessary on the part of the user.  See the
         documentation for the specific implementation and its interfaces.
+
         """
 
 
@@ -58,6 +59,7 @@ class ISessionDataContainer(IReadMapping, IWriteMapping):
     Note that this interface does not support the full mapping interface -
     the keys need to remain secret so we can't give access to keys(), 
     values() etc.
+
     """
     timeout = schema.Int(
             title=_(u"Timeout"),
@@ -93,22 +95,30 @@ class ISession(Interface):
     """This object allows retrieval of the correct ISessionData
     for a particular product id
     
-    >>> session = ISession(request)[product_id]
-    >>> session['color'] = 'red'
-    True
+        >>> session = ISession(request)[product_id]
+        >>> session['color'] = 'red'
+        True
 
-    >>> ISessionData.providedBy(session)
-    True
+        >>> ISessionData.providedBy(session)
+        True
+
     """
 
     def __getitem__(product_id):
-        """Locate the correct ISessionDataContainer for the given product id
-        and return that product id's ISessionData"""
+        """Return the relevant ISessionData
+        
+        This involves locating the correct ISessionDataContainer for the 
+        given product id and return that product id's ISessionData
+        
+        """
 
 
 class ISessionData(IReadMapping, IMapping):
-    """Storage for a particular product id's session data, containing
-    0 or more ISessionPkgData instances"""
+    """Storage for a particular product id's session data
+    
+    Contains 0 or more ISessionPkgData instances
+    
+    """
 
     lastAccessTime = schema.Int(
             title=_("Last Access Time"),
@@ -135,6 +145,7 @@ class ISessionPkgData(IMapping):
 
     Data is stored persistently and transactionally. Data stored must
     be persistent or pickable.
+
     """
 
 # BBB, generation 0, 2004-07-12

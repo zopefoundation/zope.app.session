@@ -12,9 +12,9 @@
 # FOR A PARTICULAR PURPOSE.
 #
 ##############################################################################
-'''
+"""
 $Id$
-'''
+"""
 import unittest, doctest, os, os.path, sys
 from zope.app import zapi
 from zope.app.tests import ztapi, placelesssetup

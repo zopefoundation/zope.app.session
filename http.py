@@ -11,8 +11,7 @@
 # FOR A PARTICULAR PURPOSE.
 #
 ##############################################################################
-"""
-Session implementation using cookies
+"""Session implementation using cookies
 
 $Id$
 """
@@ -129,7 +128,7 @@ class CookieClientIdManager(Persistent):
             >>> id1 != id2
             True
 
-           """
+        """
         data = "%.20f%.20f%.20f" % (random.random(), time.time(), time.clock())
         digest = sha.sha(data).digest()
         s = digestEncode(digest)
@@ -141,44 +140,44 @@ class CookieClientIdManager(Persistent):
     def getRequestId(self, request):
         """Return the browser id encoded in request as a string
         
-           Return None if an id is not set.
+        Return None if an id is not set.
 
-           For example:
+        For example:
 
-             >>> from zope.publisher.http import HTTPRequest
-             >>> request = HTTPRequest(None, None, {}, None)
-             >>> bim = CookieClientIdManager()
+            >>> from zope.publisher.http import HTTPRequest
+            >>> request = HTTPRequest(None, None, {}, None)
+            >>> bim = CookieClientIdManager()
 
-           Because no cookie has been set, we get no id:
+        Because no cookie has been set, we get no id:
 
-             >>> bim.getRequestId(request) is None
-             True
-             >>> id1 = bim.generateUniqueId()
+            >>> bim.getRequestId(request) is None
+            True
+            >>> id1 = bim.generateUniqueId()
 
-           We can set an id:
+        We can set an id:
 
-             >>> bim.setRequestId(request, id1)
+            >>> bim.setRequestId(request, id1)
 
-           And get it back:
+        And get it back:
 
-             >>> bim.getRequestId(request) == id1
-             True
+            >>> bim.getRequestId(request) == id1
+            True
 
-           When we set the request id, we also set a response cookie.  We
-           can simulate getting this cookie back in a subsequent request:
+        When we set the request id, we also set a response cookie.  We
+        can simulate getting this cookie back in a subsequent request:
 
-             >>> request2 = HTTPRequest(None, None, {}, None)
-             >>> request2._cookies = dict(
-             ...   [(name, cookie['value'])
-             ...    for (name, cookie) in request.response._cookies.items()
-             ...   ])
+            >>> request2 = HTTPRequest(None, None, {}, None)
+            >>> request2._cookies = dict(
+            ...   [(name, cookie['value'])
+            ...    for (name, cookie) in request.response._cookies.items()
+            ...   ])
 
-           And we get the same id back from the new request:
+        And we get the same id back from the new request:
 
-             >>> bim.getRequestId(request) == bim.getRequestId(request2)
-             True
+            >>> bim.getRequestId(request) == bim.getRequestId(request2)
+            True
 
-           """
+        """
 
         # If there is an id set on the response, use that but don't trust it.
         # We need to check the response in case there has already been a new
@@ -200,54 +199,55 @@ class CookieClientIdManager(Persistent):
     def setRequestId(self, request, id):
         """Set cookie with id on request.
 
-           This sets the response cookie:
+        This sets the response cookie:
 
-           See the examples in getRequestId.
+        See the examples in getRequestId.
 
-           Note that the id is checkec for validity. Setting an
-           invalid value is silently ignored:
+        Note that the id is checkec for validity. Setting an
+        invalid value is silently ignored:
 
-             >>> from zope.publisher.http import HTTPRequest
-             >>> request = HTTPRequest(None, None, {}, None)
-             >>> bim = CookieClientIdManager()
-             >>> bim.getRequestId(request)
-             >>> bim.setRequestId(request, 'invalid id')
-             >>> bim.getRequestId(request)
+            >>> from zope.publisher.http import HTTPRequest
+            >>> request = HTTPRequest(None, None, {}, None)
+            >>> bim = CookieClientIdManager()
+            >>> bim.getRequestId(request)
+            >>> bim.setRequestId(request, 'invalid id')
+            >>> bim.getRequestId(request)
 
-           For now, the cookie path is the application URL:
+        For now, the cookie path is the application URL:
 
-             >>> cookie = request.response.getCookie(bim.namespace)
-             >>> cookie['path'] == request.getApplicationURL(path_only=True)
-             True
+            >>> cookie = request.response.getCookie(bim.namespace)
+            >>> cookie['path'] == request.getApplicationURL(path_only=True)
+            True
 
-           In the future, it should be the site containing the
-           CookieClientIdManager
+        In the future, it should be the site containing the
+        CookieClientIdManager
 
-           By default, session cookies don't expire:
+        By default, session cookies don't expire:
 
-             >>> cookie.has_key('expires')
-             False
+            >>> cookie.has_key('expires')
+            False
 
-           Expiry time of 0 means never (well - close enough)
+        Expiry time of 0 means never (well - close enough)
 
-             >>> bim.cookieLifetime = 0
-             >>> request = HTTPRequest(None, None, {}, None)
-             >>> bid = bim.getClientId(request)
-             >>> cookie = request.response.getCookie(bim.namespace)
-             >>> cookie['expires']
-             'Tue, 19 Jan 2038 00:00:00 GMT'
+            >>> bim.cookieLifetime = 0
+            >>> request = HTTPRequest(None, None, {}, None)
+            >>> bid = bim.getClientId(request)
+            >>> cookie = request.response.getCookie(bim.namespace)
+            >>> cookie['expires']
+            'Tue, 19 Jan 2038 00:00:00 GMT'
 
-           A non-zero value means to expire after than number of seconds:
+        A non-zero value means to expire after than number of seconds:
 
-             >>> bim.cookieLifetime = 3600
-             >>> request = HTTPRequest(None, None, {}, None)
-             >>> bid = bim.getClientId(request)
-             >>> cookie = request.response.getCookie(bim.namespace)
-             >>> import rfc822
-             >>> expires = time.mktime(rfc822.parsedate(cookie['expires']))
-             >>> expires > time.mktime(time.gmtime()) + 55*60
-             True
-           """
+            >>> bim.cookieLifetime = 3600
+            >>> request = HTTPRequest(None, None, {}, None)
+            >>> bid = bim.getClientId(request)
+            >>> cookie = request.response.getCookie(bim.namespace)
+            >>> import rfc822
+            >>> expires = time.mktime(rfc822.parsedate(cookie['expires']))
+            >>> expires > time.mktime(time.gmtime()) + 55*60
+            True
+
+        """
         # TODO: Currently, the path is the ApplicationURL. This is reasonable,
         #     and will be adequate for most purposes.
         #     A better path to use would be that of the folder that contains

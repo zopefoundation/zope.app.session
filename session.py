@@ -11,8 +11,7 @@
 # FOR A PARTICULAR PURPOSE.
 #
 ##############################################################################
-"""
-Session implementation
+"""Session implementation
 
 $Id$
 """
@@ -58,6 +57,7 @@ class ClientId(str):
         True
 
         >>> tests.tearDown()
+
     """
     implements(IClientId)
 
@@ -89,33 +89,33 @@ class PersistentSessionDataContainer(Persistent, IterableUserDict):
             >>> sdc.resolution = 3
             >>> sdc['clientid'] = sd = SessionData()
 
-            To ensure stale data is removed, we can wind
-            back the clock using undocumented means...
+        To ensure stale data is removed, we can wind
+        back the clock using undocumented means...
             
             >>> sd.lastAccessTime = sd.lastAccessTime - 64
             >>> sdc._v_last_sweep = sdc._v_last_sweep - 4
 
-            Now the data should be garbage collected
+        Now the data should be garbage collected
 
             >>> sdc['clientid']
             Traceback (most recent call last):
                 [...]
             KeyError: 'clientid'
 
-            Ensure lastAccessTime on the ISessionData is being updated 
-            occasionally. The ISessionDataContainer maintains this whenever
-            the ISessionData is set or retrieved.
+        Ensure lastAccessTime on the ISessionData is being updated 
+        occasionally. The ISessionDataContainer maintains this whenever
+        the ISessionData is set or retrieved.
 
-            lastAccessTime on the ISessionData is set when it is added
-            to the ISessionDataContainer
+        lastAccessTime on the ISessionData is set when it is added
+        to the ISessionDataContainer
 
             >>> sdc['client_id'] = sd = SessionData()
             >>> sd.lastAccessTime > 0
             True
 
-            lastAccessTime is also updated whenever the ISessionData
-            is retrieved through the ISessionDataContainer, at most
-            once every 'resolution' seconds.
+        lastAccessTime is also updated whenever the ISessionData
+        is retrieved through the ISessionDataContainer, at most
+        once every 'resolution' seconds.
 
             >>> then = sd.lastAccessTime = sd.lastAccessTime - 4
             >>> now = sdc['client_id'].lastAccessTime
@@ -125,15 +125,16 @@ class PersistentSessionDataContainer(Persistent, IterableUserDict):
             >>> now == sdc['client_id'].lastAccessTime
             True
 
-            Ensure lastAccessTime is not modified and no garbage collection
-            occurs when timeout == 0. We test this by faking a stale
-            ISessionData object.
+        Ensure lastAccessTime is not modified and no garbage collection
+        occurs when timeout == 0. We test this by faking a stale
+        ISessionData object.
 
             >>> sdc.timeout = 0
             >>> sd.lastAccessTime = sd.lastAccessTime - 5000
             >>> lastAccessTime = sd.lastAccessTime
             >>> sdc['client_id'].lastAccessTime == lastAccessTime
             True
+
         """
         if self.timeout == 0:
             return IterableUserDict.__getitem__(self, pkg_id)
@@ -160,7 +161,7 @@ class PersistentSessionDataContainer(Persistent, IterableUserDict):
             >>> sdc = PersistentSessionDataContainer()
             >>> sad = SessionData()
 
-            __setitem__ sets the ISessionData's lastAccessTime
+        __setitem__ sets the ISessionData's lastAccessTime
 
             >>> sad.lastAccessTime
             0
@@ -168,11 +169,12 @@ class PersistentSessionDataContainer(Persistent, IterableUserDict):
             >>> 0 < sad.lastAccessTime <= time.time()
             True
 
-            We can retrieve the same object we put in
+        We can retrieve the same object we put in
 
             >>> sdc['1'] is sad
             True
-            """
+
+        """
         session_data.lastAccessTime = int(time.time())
         return IterableUserDict.__setitem__(self, pkg_id, session_data)
 
@@ -183,12 +185,12 @@ class PersistentSessionDataContainer(Persistent, IterableUserDict):
             >>> sdc['1'] = SessionData()
             >>> sdc['2'] = SessionData()
 
-            Wind back the clock on one of the ISessionData's
-            so it gets garbage collected
+        Wind back the clock on one of the ISessionData's
+        so it gets garbage collected
 
             >>> sdc['2'].lastAccessTime -= sdc.timeout * 2
 
-            Sweep should leave '1' and remove '2'
+        Sweep should leave '1' and remove '2'
 
             >>> sdc.sweep()
             >>> sd1 = sdc['1']
@@ -196,7 +198,8 @@ class PersistentSessionDataContainer(Persistent, IterableUserDict):
             Traceback (most recent call last):
                 [...]
             KeyError: '2'
-            """
+
+        """
         # We only update the lastAccessTime every 'resolution' seconds.
         # To compensate for this, we factor in the resolution when
         # calculating the expiry time to ensure that we never remove
@@ -213,9 +216,10 @@ class PersistentSessionDataContainer(Persistent, IterableUserDict):
 
 
 class RAMSessionDataContainer(PersistentSessionDataContainer):
-    """A SessionDataContainer that stores data in RAM. Currently session
-        data is not shared between Zope clients, so server affinity will
-        need to be maintained to use this in a ZEO cluster.
+    """A SessionDataContainer that stores data in RAM.
+    
+    Currently session data is not shared between Zope clients, so 
+    server affinity will need to be maintained to use this in a ZEO cluster.
 
         >>> sdc = RAMSessionDataContainer()
         >>> sdc['1'] = SessionData()
@@ -223,7 +227,8 @@ class RAMSessionDataContainer(PersistentSessionDataContainer):
         True
         >>> ISessionData.providedBy(sdc['1'])
         True
-        """
+
+    """
     def __init__(self):
         self.resolution = 5*60
         self.timeout = 1 * 60 * 60
@@ -270,24 +275,24 @@ class Session:
             >>> ISession.providedBy(Session(request))
             True
 
-            Setup some sessions, each with a distinct namespace
+        Setup some sessions, each with a distinct namespace
 
             >>> session1 = Session(request)['products.foo']
             >>> session2 = Session(request)['products.bar']
             >>> session3 = Session(request2)['products.bar']
 
-            If we use the same parameters, we should retrieve the
-            same object
+        If we use the same parameters, we should retrieve the
+        same object
 
             >>> session1 is Session(request)['products.foo']
             True
 
-            Make sure it returned sane values
+        Make sure it returned sane values
 
             >>> ISessionPkgData.providedBy(session1)
             True
 
-            Make sure that pkg_ids don't share a namespace.
+        Make sure that pkg_ids don't share a namespace.
 
             >>> session1['color'] = 'red'
             >>> session2['color'] = 'blue'
@@ -300,6 +305,7 @@ class Session:
             'vomit'
 
             >>> tests.tearDown()
+
         """
 
         # First locate the ISessionDataContainer by looking up
@@ -332,6 +338,7 @@ class SessionData(Persistent, IterableUserDict):
         True
         >>> session.lastAccessTime
         0
+
     """
     implements(ISessionData)
     lastAccessTime = 0
