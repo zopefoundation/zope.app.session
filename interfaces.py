@@ -4,7 +4,7 @@
 # All Rights Reserved.
 #
 # This software is subject to the provisions of the Zope Public License,
-# Version 2.0 (ZPL).  A copy of the ZPL should accompany this distribution.
+# Version 2.1 (ZPL).  A copy of the ZPL should accompany this distribution.
 # THIS SOFTWARE IS PROVIDED "AS IS" AND ANY AND ALL EXPRESS OR IMPLIED
 # WARRANTIES ARE DISCLAIMED, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
 # WARRANTIES OF TITLE, MERCHANTABILITY, AGAINST INFRINGEMENT, AND FITNESS
@@ -17,17 +17,14 @@ $Id$
 """
 import re
 from zope.interface import Interface
-from zope.interface.common.mapping import IMapping, IReadMapping, IWriteMapping
-from zope import schema
-from zope.app.container.interfaces import IContainer
-from zope.app.i18n import ZopeMessageIDFactory as _
+from zope.interface.common.mapping import IMapping
 
 
-class IBrowserIdManager(Interface):
-    """Manages sessions - fake state over multiple browser requests."""
+class IClientIdManager(Interface):
+    """Manages sessions - fake state over multiple client requests."""
 
-    def getBrowserId(request):
-        """Return the browser id for the given request as a string.
+    def getClientId(request):
+        """Return the client id for the given request as a string.
         
         If the request doesn't have an attached sessionId a new one will be
         generated.
@@ -40,123 +37,37 @@ class IBrowserIdManager(Interface):
 
 
     """ XXX: Want this
-    def invalidate(browser_id):
-        ''' Expire the browser_id, and remove any matching ISessionData data 
+    def invalidate(client_id):
+        ''' Expire the client_id, and remove any matching ISessionData data 
         '''
     """
 
-
-class ICookieBrowserIdManager(IBrowserIdManager):
-    """Manages sessions using a cookie"""
-
-    namespace = schema.TextLine(
-            title=_('Cookie Name'),
-            description=_(
-                "Name of cookie used to maintain state. "
-                "Must be unique to the site domain name, and only contain "
-                "ASCII letters, digits and '_'"
-                ),
-            required=True,
-            min_length=1,
-            max_length=30,
-            constraint=re.compile("^[\d\w_]+$").search,
-            )
-
-    cookieLifetime = schema.Int(
-            title=_('Cookie Lifetime'),
-            description=_(
-                "Number of seconds until the browser expires the cookie. "
-                "Leave blank expire the cookie when the browser is quit. "
-                "Set to 0 to never expire. "
-                ),
-            min=0,
-            required=False,
-            default=None,
-            missing_value=None,
-            )
-
-
-class IBrowserId(Interface):
-    """A unique ID representing a session"""
-
-    def __str__():
-        """As a unique ASCII string"""
-
-
-class ISessionDataContainer(IMapping):
-    """Stores data objects for sessions.
-
-    The object implementing this interface is responsible for expiring data as
-    it feels appropriate.
-
-    Usage::
-
-      session_data_container[product_id][browser_id][key] = value
-
-    Attempting to access a key that does not exist will raise a KeyError.
+class IPersistentSessionDataManager(IMapping):
+    """Manage IPersistentSessionData objects by client id
     """
 
-    timeout = schema.Int(
-            title=_(u"Timeout"),
-            description=_(
-                "Number of seconds before data becomes stale and may "
-                "be removed"),
-            default=3600,
-            required=True,
-            min=1,
-            )
-    sweepInterval = schema.Int(
-            title=_(u"Purge Interval"),
-            description=_(
-                "How often stale data is purged in seconds. "
-                "Higer values improve performance."
-                ),
-            default=5*60,
-            required=True,
-            min=1,
-            )
+    def __getitem__(self, client_id):
+        """Returns data for a client id
 
-    def __getitem__(self, product_id):
-        """Return an ISessionProductData"""
-
-    def __setitem__(self, product_id, value):
-        """Store an ISessionProductData"""
-
-
-class ISession(Interface):
-    """This object allows retrieval of the correct ISessionData
-    for a particular product id
+        If data hasn't been stored previously, a new IPersistentSessionData
+        will be created and returned.
+        
+        """
     
-    >>> session = ISession(request)[product_id]
-    >>> session['color'] = 'red'
+class IPersistentSessionData(IMapping):
+    """Provide persistent session storage
+
+    Data are stored persistently and transactionally. Data stored must
+    be persistent or picklable.
+
+    Note that this type of sessionstoreage should not be written to
+    very frequently.
     """
 
-    def __getitem__(product_id):
-        """Locate the correct ISessionDataContainer for the given product id
-        and return that product id's ISessionData"""
+    def __getitem__(self, application_id):
+        """Returns data for an application id
 
-
-class ISessionProductData(IReadMapping, IWriteMapping):
-    """Storage for a particular product id's session data, containing
-    0 or more ISessionData instances"""
-
-    lastAccessTime = schema.Int(
-            title=_("Last Access Time"),
-            description=_(
-                "Approximate epoch time this ISessionData was last retrieved "
-                "from its ISessionDataContainer"
-                ),
-            default=0,
-            required=True,
-            )
-
-    def __getitem__(self, browser_id):
-        """Return an ISessionData"""
-
-    def __setitem__(self, browser_id, session_data):
-        """Store an ISessionData"""
-
-class ISessionData(IMapping):
-    """Storage for a particular product id and browser id's session data"""
-
-
+        If data hasn't been stored previously, a new mapping object
+        will be created and returned.
+        
+        """
