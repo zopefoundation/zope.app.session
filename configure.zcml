@@ -2,7 +2,19 @@
     xmlns="http://namespaces.zope.org/zope"
     xmlns:browser="http://namespaces.zope.org/browser">
 
-  <!-- Session machinery -->
+  <adapter
+      factory=".BrowserId"
+      provides=".interfaces.IBrowserId"
+      for="zope.publisher.interfaces.IRequest"
+      permission="zope.Public" 
+      />
+
+  <adapter
+      factory=".Session"
+      provides=".interfaces.ISession"
+      for="zope.publisher.interfaces.IRequest"
+      permission="zope.Public"
+      />
 
   <content class=".CookieBrowserIdManager">
     <require
@@ -11,10 +23,6 @@
     <require
         set_schema=".interfaces.ICookieBrowserIdManager"
         permission="zope.ManageContent" />
-  </content>
-
-  <content class=".SessionData">
-    <allow interface="zope.interface.common.mapping.IMapping" />
   </content>
 
   <content class=".PersistentSessionDataContainer">
@@ -37,6 +45,14 @@
     <require
         set_schema=".interfaces.ISessionDataContainer"
         permission="zope.ManageContent" />
+  </content>
+
+  <content class=".SessionData">
+    <allow interface="zope.interface.common.mapping.IMapping" />
+  </content>
+
+  <content class=".Session">
+    <allow interface=".interfaces.ISession" />
   </content>
 
   <include file="browser.zcml" />

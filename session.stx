@@ -1,0 +1,55 @@
+Session Support
+---------------
+
+Sessions allow us to fake state over a stateless protocol - HTTP. We do this
+by having a unique identifier stored across multiple HTTP requests, be it
+a cookie or some id mangled into the URL.
+
+The IBrowserIdManager Utility provides this unique id. It is responsible
+for propagating this id so that future requests from the browser get
+the same id (eg. by setting an HTTP cookie)
+
+ISessionDataContainer Utilities store session data. The ISessionDataContainer
+is responsible for expiring data.
+
+ISessionDataContainer[product_id] returns ISessionProductData
+ISessionDataContainer[product_id][browser_id] returns ISessionData
+
+ISession(request)[product_id] returns ISessionData
+
+An ISession determines what ISessionDataContainer to use by looking
+up an ISessionDataContainer using the product_id as the name, and
+falling back to the unnamed ISessionDataContainer utility. This allows
+site administrators to select which ISessionDataContainer a particular
+product stores its session data in by registering the utility with
+the relevant name(s).
+
+Python example::
+
+    >>> browser_id = IBrowserId(request)
+
+    >>> session_data = ISession(request)['zopeproducts.fooprod']
+    >>> session_data['color'] = 'red'
+
+    or for the adventurous....
+
+    >>> explicit_dc = getUtility(ISessionDataContainer, 'zopeproducts.fooprod')
+    >>> session_data = explicit_dc['zopeproducts.fooprod'][str(browser_id)]
+    >>> session_data = Session(explicit_dc, browser_id)['zopeproducts.fooprod']
+    >>> session_data['color'] = 'red'
+
+
+Page Template example::
+
+    XXX: Needs update when TALES adapter syntax decided
+
+    <tal:x condition="exists:session/zopeproducts.fooprod/count">
+       <tal:x condition="python:
+        session['zopeproducts.fooprod']['count'] += 1" />
+    </tal:x>
+    <tal:x condition="not:exists:session/zopeprodicts.fooprod/count">
+        <tal:x condition="python:
+            session['zopeproducts.fooprod']['count'] = 1 />
+    </tal:x>
+    <span content="session/zopeproducts.fooprod/count">6</span>
+

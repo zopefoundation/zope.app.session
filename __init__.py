@@ -30,9 +30,9 @@ from BTrees.OOBTree import OOBTree
 from zope.app.utility.interfaces import ILocalUtility
 from zope.app.annotation.interfaces import IAttributeAnnotatable
 
-from interfaces import IBrowserIdManager, IBrowserId, ICookieBrowserIdManager, \
-                       ISessionDataContainer, ISession
-from zope.app.container.interfaces import IContained
+from interfaces import \
+        IBrowserIdManager, IBrowserId, ICookieBrowserIdManager, \
+        ISessionDataContainer, ISession, ISessionProductData, ISessionData
 
 import ZODB
 import ZODB.MappingStorage
@@ -45,8 +45,13 @@ def digestEncode(s):
 
 
 class BrowserId(str):
-    """A browser id"""
+    """See zope.app.interfaces.utilities.session.IBrowserId"""
     implements(IBrowserId)
+
+    def __new__(cls, request):
+        return str.__new__(
+                cls, zapi.getUtility(IBrowserIdManager).getBrowserId(request)
+                )
 
 
 class CookieBrowserIdManager(Persistent):
@@ -71,11 +76,11 @@ class CookieBrowserIdManager(Persistent):
         # we store a HMAC of the random value together with it, which makes
         # our session ids unforgeable.
         mac = hmac.new(s, self.secret, digestmod=sha).digest()
-        return BrowserId(s + digestEncode(mac))
+        return s + digestEncode(mac)
 
     def getRequestId(self, request):
-        """Return the IBrowserId encoded in request or None if it's
-        non-existent."""
+        """Return the browser id encoded in request as a string, 
+        or None if it's non-existent."""
         # If there is an id set on the response, use that but don't trust it.
         # We need to check the response in case there has already been a new
         # session created during the course of this request.
@@ -91,7 +96,7 @@ class CookieBrowserIdManager(Persistent):
             != mac):
             return None
         else:
-            return BrowserId(sid)
+            return sid
 
     def setRequestId(self, request, id):
         """Set cookie with id on request."""
@@ -120,7 +125,7 @@ class CookieBrowserIdManager(Persistent):
                     )
 
     def getBrowserId(self, request):
-        ''' See zope.app.interfaces.utilities.session.IBrowserIdManager '''
+        """See zope.app.session.interfaces.IBrowserIdManager"""
         sid = self.getRequestId(request)
         if sid is None:
             sid = self.generateUniqueId()
@@ -138,19 +143,22 @@ class PersistentSessionDataContainer(Persistent, IterableUserDict):
         self.data = OOBTree()
         self.sweepInterval = 5*60
 
-    def __getitem__(self, key):
-        rv = IterableUserDict.__getitem__(self, key)
+    def __getitem__(self, product_id):
+        rv = IterableUserDict.__getitem__(self, product_id)
         now = time.time()
         # Only update lastAccessTime once every few minutes, rather than
-        # every hit, to avoid ZODB bloat since this is being stored 
-        # persistently
+        # every hit, to avoid ZODB bloat and conflicts
         if rv.lastAccessTime + self.sweepInterval < now:
-            rv.lastAccessTime = now
+            rv.lastAccessTime = int(now)
             # XXX: When scheduler exists, this method should just schedule
             # a sweep later since we are currently busy handling a request
             # and may end up doing simultaneous sweeps
             self.sweep()
         return rv
+
+    def __setitem__(self, product_id, session_data):
+        session_data.lastAccessTime = int(time.time())
+        return IterableUserDict.__setitem__(self, product_id, session_data)
 
     def sweep(self):
         ''' Clean out stale data '''
@@ -164,7 +172,6 @@ class PersistentSessionDataContainer(Persistent, IterableUserDict):
             else:
                 return
 
-_ram_session_storages = {}
 
 class RAMSessionDataContainer(PersistentSessionDataContainer):
     ''' A SessionDataContainer that stores data in RAM. Currently session
@@ -176,6 +183,7 @@ class RAMSessionDataContainer(PersistentSessionDataContainer):
         self.key = sha.new(str(time.time() + random.random())).hexdigest()
 
     _ram_storage = ZODB.MappingStorage.MappingStorage()
+    _ram_db = ZODB.DB(_ram_storage)
     _conns = {}
 
     def _getData(self):
@@ -183,74 +191,70 @@ class RAMSessionDataContainer(PersistentSessionDataContainer):
         # Open a connection to _ram_storage per thread
         tid = thread.get_ident()
         if not self._conns.has_key(tid):
-            db = ZODB.DB(self._ram_storage)
-            self._conns[tid] = db.open()
+            self._conns[tid] = self._ram_db.open()
 
         root = self._conns[tid].root()
         if not root.has_key(self.key):
             root[self.key] = OOBTree()
         return root[self.key]
 
-        logger = logging.getLogger('zope.app.session')
-        logger.error('Oops %r' % (_ram_session_storages.keys(),))
-        
     data = property(_getData, None)
 
-
-class SessionData(Persistent, IterableUserDict):
-    ''' Mapping nodes in the ISessionDataContainer tree '''
-    implements(IMapping)
-
-    def __init__(self):
-        self.data = OOBTree()
-        self.lastAccessTime = time.time()
+    def sweep(self):
+        super(RAMSessionDataContainer, self).sweep()
+        self._ram_db.pack(time.time())
 
 
-class Session(IterableUserDict):
+class Session:
+    """See zope.app.session.interfaces.ISession"""
     implements(ISession)
-    def __init__(self, data_manager, browser_id, product_id):
-        ''' See zope.app.interfaces.utilities.session.ISession '''
-        browser_id = str(browser_id)
-        product_id = str(product_id)
-        try:
-            data = data_manager[browser_id]
-        except KeyError:
-            data_manager[browser_id] = SessionData()
-            data_manager[browser_id][product_id] = SessionData()
-            self.data = data_manager[browser_id][product_id]
-        else:
-            try:
-                self.data = data[product_id]
-            except KeyError:
-                data[product_id] = SessionData()
-                self.data = data[product_id]
+    __slots__ = ('browser_id',)
+    def __init__(self, request):
+        self.browser_id = str(IBrowserId(request))
 
-# XXX: remove context arg
-def getSession(context, request, product_id, session_data_container=None):
-    ''' Retrieve an ISession. session_data_container defaults to 
-        an ISessionDataContainer utility registered with the name product_id
+    def __getitem__(self, product_id):
+        """See zope.app.session.interfaces.ISession"""
 
-        XXX: This method will probably be changed when we have an
-            Interaction or other object that combines context & request
-            into a single object.
-    '''
-    if session_data_container is None:
+        # First locate the ISessionDataContainer by looking up
+        # the named Utility, and falling back to the unnamed one.
         try:
-            dc = zapi.getUtility(ISessionDataContainer, product_id)
+            sdc = zapi.getUtility(ISessionDataContainer, product_id)
         except ComponentLookupError:
+            # XXX: Do we want this?
             warnings.warn(
                     'Unable to find ISessionDataContainer named %s. '
                     'Using default' % repr(product_id),
                     RuntimeWarning
                     )
-            dc = zapi.getUtility(ISessionDataContainer)
-    elif ISessionDataContainer.providedBy(session_data_container):
-        dc = session_data_container
-    else:
-        dc = zapi.getUtility(ISessionDataContainer, session_data_container)
+            sdc = zapi.getUtility(ISessionDataContainer)
 
-    bim = zapi.getUtility(IBrowserIdManager)
-    browser_id = bim.getBrowserId(request)
-    return Session(dc, browser_id, product_id)
+        # The ISessionDataContainer contains two levels:
+        # ISessionDataContainer[product_id] == ISessionProductData
+        # ISessionDataContainer[product_id][browser_id] == ISessionData
+        try:
+            spd = sdc[product_id]
+        except KeyError:
+            sdc[product_id] = SessionProductData()
+            spd = sdc[product_id]
 
+        try:
+            return spd[self.browser_id]
+        except KeyError:
+            spd[self.browser_id] = SessionData()
+            return spd[self.browser_id]
+
+
+class SessionProductData(Persistent, IterableUserDict):
+    """See zope.app.session.interfaces.ISessionProductData"""
+    implements(ISessionProductData)
+    lastAccessTime = 0
+    def __init__(self):
+        self.data = OOBTree()
+
+
+class SessionData(Persistent, IterableUserDict):
+    """See zope.app.session.interfaces.ISessionData"""
+    implements(ISessionData)
+    def __init__(self):
+        self.data = OOBTree()
 
