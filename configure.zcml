@@ -3,21 +3,30 @@
     xmlns:browser="http://namespaces.zope.org/browser">
 
   <adapter
-      factory=".session.ClientId"
-      provides=".interfaces.IClientId"
       for="zope.publisher.interfaces.IRequest"
+      provides=".interfaces.IClientId"
+      factory=".session.ClientId"
       permission="zope.Public" 
       />
 
   <adapter
-      factory=".session.Session"
-      provides=".interfaces.ISession"
       for="zope.publisher.interfaces.IRequest"
+      provides=".interfaces.ISession"
+      factory=".session.Session"
+      permission="zope.Public"
+      />
+
+  <adapter
+      for="zope.publisher.interfaces.IRequest"
+      provides="zope.app.traversing.interfaces.IPathAdapter"
+      factory=".session.Session"
+      name="session"
       permission="zope.Public"
       />
 
   <content class=".session.Session">
     <allow interface=".interfaces.ISession" />
+    <implements interface="zope.app.traversing.interfaces.IPathAdapter" />
   </content>
 
   <content class=".http.CookieClientIdManager">

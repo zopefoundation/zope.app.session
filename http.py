@@ -25,6 +25,7 @@ from zope.app.utility.interfaces import ILocalUtility
 from zope import schema
 from zope.interface import implements
 from zope.server.http.http_date import build_http_date
+from zope.publisher.interfaces.http import IHTTPApplicationRequest
 import hmac
 import random
 import re
@@ -152,10 +153,10 @@ class CookieClientIdManager(Persistent):
 
             >>> bim.getRequestId(request) is None
             True
-            >>> id1 = bim.generateUniqueId()
 
         We can set an id:
 
+            >>> id1 = bim.generateUniqueId()
             >>> bim.setRequestId(request, id1)
 
         And get it back:
@@ -178,7 +179,7 @@ class CookieClientIdManager(Persistent):
             True
 
         """
-
+        request = IHTTPApplicationRequest(request)
         # If there is an id set on the response, use that but don't trust it.
         # We need to check the response in case there has already been a new
         # session created during the course of this request.
@@ -186,7 +187,7 @@ class CookieClientIdManager(Persistent):
         if response_cookie:
             sid = response_cookie['value']
         else:
-            sid = request.cookies.get(self.namespace)
+            sid = request.getCookies().get(self.namespace, None)
         if sid is None or len(sid) != 54:
             return None
         s, mac = sid[:27], sid[27:]

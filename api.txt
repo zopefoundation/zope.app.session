@@ -89,23 +89,23 @@ Data stored in the session must be persistent or picklable.
 Page Templates
 --------------
 
-    TODO: Confirm these examples work, preferably by somehow having them
-    unit tested along with the rest of this document
+    Session data may be accessed in page template documents using
+    TALES::
 
-    Session data may be accessed in page template documents using the
-    TALES adaptor syntax::
-
-        <span tal:content="request*Session/products.foo/color | default">
+        <span tal:content="request/session:products.foo/color | default">
             green
         </span>
 
-        <div tal:define="session request*Session/products.foo">
-            <tal:x condition="not:exists:session/count">
-                <tal:x condition="python: session['count'] = 1" />
-            </tal:x>
-            <tal:x condition="exists:session/count">
-                <tal:x condition="python: session['count'] += 1" />
-            </tal:x>
-            <span content="session/count">6</span>
+    or::
+
+        <div tal:define="session request/session:products.foo">
+            <script type="text/server-python">
+                try:
+                    session['count'] += 1
+                except KeyError:
+                    session['count'] = 1
+            </script> 
+
+            <span tal:content="session/count" />
         </div>
 
