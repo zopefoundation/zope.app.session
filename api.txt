@@ -4,18 +4,32 @@ Zope3 Session Implementation
 Overview
 --------
 
-Sessions allow us to fake state over a stateless protocol - HTTP. We do this
-by having a unique identifier stored across multiple HTTP requests, be it
-a cookie or some id mangled into the URL.
+.. CAUTION::
+    Session data is maintained on the server. This gives a security
+    advantage in that we can assume that a client has not tampered with
+    the data.  However, this can have major implications for scalability
+    as modifying session data too frequently can put a significant load
+    on servers and in extreme situations render your site unusable.
+    Developers should keep this in mind when writing code or risk
+    problems when their application is run in a production environment.
 
-The `IClientIdManager` Utility provides this unique id. It is responsible
-for propagating this id so that future requests from the client get
-the same id (eg. by setting an HTTP cookie). This utility is used 
-when we adapt the request to the unique client id:
+    Applications requiring write-intensive session implementations (such
+    as page counters) should consider using cookies or specialized
+    session implementations.
+
+Sessions allow us to fake state over a stateless protocol - HTTP.
+We do this by having a unique identifier stored across multiple
+HTTP requests, be it a cookie or some id mangled into the URL.
+
+
+The `IClientIdManager` Utility provides this unique id. It is
+responsible for propagating this id so that future requests from
+the client get the same id (eg. by setting an HTTP cookie). This
+utility is used when we adapt the request to the unique client id:
 
     >>> client_id = IClientId(request)
 
-The `ISession` adapter gives us a mapping that can be used to store 
+The `ISession` adapter gives us a mapping that can be used to store
 and retrieve session data. A unique key (the package id) is used
 to avoid namespace clashes:
 
