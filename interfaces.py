@@ -38,13 +38,6 @@ class IClientIdManager(Interface):
         """
 
 
-    """ XXX: Want this
-    def invalidate(browser_id):
-        ''' Expire the browser_id, and remove any matching ISessionData data 
-        '''
-    """
-
-
 class IClientId(Interface):
     """A unique id representing a session"""
 

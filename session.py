@@ -140,7 +140,7 @@ class PersistentSessionDataContainer(Persistent, IterableUserDict):
 
         now = time.time()
 
-        # XXX: When scheduler exists, sweeping should be done by
+        # TODO: When scheduler exists, sweeping should be done by
         # a scheduled job since we are currently busy handling a
         # request and may end up doing simultaneous sweeps
         if self._v_last_sweep + self.resolution < now:

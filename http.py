@@ -248,7 +248,7 @@ class CookieClientIdManager(Persistent):
              >>> expires > time.mktime(time.gmtime()) + 55*60
              True
            """
-        # XXX Currently, the path is the ApplicationURL. This is reasonable,
+        # TODO: Currently, the path is the ApplicationURL. This is reasonable,
         #     and will be adequate for most purposes.
         #     A better path to use would be that of the folder that contains
         #     the service-manager this service is registered within. However,
