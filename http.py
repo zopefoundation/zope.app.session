@@ -33,6 +33,8 @@ import sha
 import string
 import time
 
+__docformat__ = 'restructuredtext'
+
 cookieSafeTrans = string.maketrans("+/", "-.")
 
 def digestEncode(s):

@@ -21,6 +21,7 @@ from zope import schema
 from zope.app.container.interfaces import IContainer
 from zope.app.i18n import ZopeMessageIDFactory as _
 
+__docformat__ = 'restructuredtext'
 
 class IClientIdManager(Interface):
     """Manages sessions - fake state over multiple client requests."""

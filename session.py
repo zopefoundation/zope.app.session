@@ -38,6 +38,8 @@ from http import ICookieClientIdManager
 import ZODB
 import ZODB.MappingStorage
 
+__docformat__ = 'restructuredtext'
+
 cookieSafeTrans = string.maketrans("+/", "-.")
 
 def digestEncode(s):
