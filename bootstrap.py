@@ -24,19 +24,19 @@ from zope.app.appsetup.bootstrap import BootstrapSubscriberBase
 
 
 from zope.app.session.interfaces import \
-     IBrowserIdManager, ISessionDataContainer
-from zope.app.session import \
-     CookieBrowserIdManager, PersistentSessionDataContainer
+     IClientIdManager, ISessionDataContainer
+from zope.app.session.http import CookieClientIdManager
+from zope.app.session.session import PersistentSessionDataContainer
 
 class BootstrapInstance(BootstrapSubscriberBase):
 
     def doSetup(self):
         self.ensureUtility(
-                IBrowserIdManager, 'CookieBrowserIdManager',
-                CookieBrowserIdManager,
+                IClientIdManager, 'CookieClientIdManager',
+                CookieClientIdManager,
                 )
         self.ensureUtility(
-                ISessionDataContainer, 'PersistentSessionData',
+                ISessionDataContainer, 'PersistentSessionDataContainer',
                 PersistentSessionDataContainer,
                 )
 

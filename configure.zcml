@@ -3,56 +3,56 @@
     xmlns:browser="http://namespaces.zope.org/browser">
 
   <adapter
-      factory=".BrowserId"
-      provides=".interfaces.IBrowserId"
+      factory=".session.ClientId"
+      provides=".interfaces.IClientId"
       for="zope.publisher.interfaces.IRequest"
       permission="zope.Public" 
       />
 
   <adapter
-      factory=".Session"
+      factory=".session.Session"
       provides=".interfaces.ISession"
       for="zope.publisher.interfaces.IRequest"
       permission="zope.Public"
       />
 
-  <content class=".CookieBrowserIdManager">
-    <require
-        interface=".interfaces.ICookieBrowserIdManager"
-        permission="zope.Public" />
-    <require
-        set_schema=".interfaces.ICookieBrowserIdManager"
-        permission="zope.ManageContent" />
-  </content>
-
-  <content class=".PersistentSessionDataContainer">
-    <implements
-        interface=".interfaces.ISessionDataContainer"/>
-    <require
-        interface=".interfaces.ISessionDataContainer"
-        permission="zope.Public" />
-    <require
-        set_schema=".interfaces.ISessionDataContainer"
-        permission="zope.ManageContent" />
-  </content>
-
-  <content class=".RAMSessionDataContainer">
-    <implements
-        interface=".interfaces.ISessionDataContainer"/>
-    <require
-        interface=".interfaces.ISessionDataContainer"
-        permission="zope.Public" />
-    <require
-        set_schema=".interfaces.ISessionDataContainer"
-        permission="zope.ManageContent" />
-  </content>
-
-  <content class=".SessionData">
-    <allow interface="zope.interface.common.mapping.IMapping" />
-  </content>
-
-  <content class=".Session">
+  <content class=".session.Session">
     <allow interface=".interfaces.ISession" />
+  </content>
+
+  <content class=".http.CookieClientIdManager">
+    <require
+        interface=".http.ICookieClientIdManager"
+        permission="zope.Public" />
+    <require
+        set_schema=".http.ICookieClientIdManager"
+        permission="zope.ManageServices" />
+  </content>
+
+  <content class=".session.PersistentSessionDataContainer">
+    <require
+        interface=".interfaces.ISessionDataContainer"
+        permission="zope.Public" />
+    <require
+        set_schema=".interfaces.ISessionDataContainer"
+        permission="zope.ManageServices" />
+  </content>
+
+  <content class=".session.RAMSessionDataContainer">
+    <require
+        interface=".interfaces.ISessionDataContainer"
+        permission="zope.Public" />
+    <require
+        set_schema=".interfaces.ISessionDataContainer"
+        permission="zope.ManageServices" />
+  </content>
+
+  <content class=".session.SessionData">
+    <allow interface=".interfaces.ISessionData" />
+  </content>
+
+  <content class=".session.SessionPkgData">
+    <allow interface=".interfaces.ISessionPkgData" />
   </content>
 
   <subscriber
