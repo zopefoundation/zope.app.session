@@ -260,10 +260,10 @@ class RAMSessionDataContainer(PersistentSessionDataContainer):
         self._ram_db.pack(time.time())
 
 
-class Session:
+class Session(object):
     """See zope.app.session.interfaces.ISession"""
     implements(ISession)
-    __slots__ = ('browser_id',)
+    __slots__ = ('browser_id', 'client_id')
     def __init__(self, request):
         self.client_id = str(IClientId(request))
 
