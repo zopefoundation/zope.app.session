@@ -48,7 +48,7 @@ to avoid namespace clashes:
 
 Data Storage
 ------------
-   
+
 The actual data is stored in an `ISessionDataContainer` utility.
 `ISession` chooses which `ISessionDataContainer` should be used by
 looking up as a named utility using the package id. This allows
@@ -72,8 +72,8 @@ for you, which may replaced with a different implementation if desired.
     True
 
 The `ISessionDataContainer` contains `ISessionData` objects, and
-`ISessionData` objects in turn contain `ISessionPkgData` objects. You 
-should never need to know this unless you are writing administrative 
+`ISessionData` objects in turn contain `ISessionPkgData` objects. You
+should never need to know this unless you are writing administrative
 views for the session machinery.
 
     >>> ISessionData.providedBy(sdc[client_id])
@@ -99,6 +99,9 @@ Data stored in the session must be persistent or picklable.
         [...]
     TypeError: can't pickle file objects
 
+    Clean up:
+    >>> transaction.abort()
+
 
 Page Templates
 --------------
@@ -118,7 +121,7 @@ Page Templates
                     session['count'] += 1
                 except KeyError:
                     session['count'] = 1
-            </script> 
+            </script>
 
             <span tal:content="session/count" />
         </div>
