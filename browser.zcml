@@ -1,7 +1,8 @@
 <configure 
   xmlns:zope="http://namespaces.zope.org/zope"
   xmlns="http://namespaces.zope.org/browser">
-<!-- Cookie Browser Id Manager -->
+
+  <!-- Cookie Browser Id Manager -->
 
   <addMenuItem
     title="Cookie Browser Id Manager"
@@ -26,7 +27,7 @@
     name="edit.html" menu="zmi_views" title="Edit"
     permission="zope.ManageContent" />
 
-<!-- PersistentSessionDataContainer -->
+  <!-- PersistentSessionDataContainer -->
 
   <addMenuItem
     title="Persistent Session Data Container"
@@ -34,9 +35,18 @@
     class=".PersistentSessionDataContainer"
     permission="zope.ManageContent" />
 
+  <!-- RAMSessionDataContainer -->
+
+  <addMenuItem
+    title="RAM Session Data Container"
+    description="Stores session data in RAM"
+    class=".RAMSessionDataContainer"
+    permission="zope.ManageContent" />
+
+  <!-- ISessionDataContainer -->
   <editform
     schema=".interfaces.ISessionDataContainer"
-    label="Persistent Session Data Container Properties"
+    label="Session Data Container Properties"
     name="edit.html" menu="zmi_views" title="Edit"
     permission="zope.ManageContent" />
 

@@ -26,14 +26,45 @@ from zope.app.servicenames import Utilities
 from zope.app.annotation.interfaces import IAttributeAnnotatable
 
 from zope.app.session.interfaces import \
-        IBrowserId, IBrowserIdManager, ISession, ISessionDataContainer
+        IBrowserId, IBrowserIdManager, \
+        ISession, ISessionDataContainer, ISessionData, ISessionProductData
 
 from zope.app.session import \
-        CookieBrowserIdManager, Session, SessionData, getSession, \
-        PersistentSessionDataContainer
+        BrowserId, CookieBrowserIdManager, \
+        PersistentSessionDataContainer, RAMSessionDataContainer, \
+        Session, SessionData, SessionProductData
 
+from zope.publisher.interfaces import IRequest
 from zope.publisher.interfaces.http import IHTTPRequest
 from zope.publisher.http import HTTPRequest
+
+def setUp(session_data_container_class):
+
+    # Placeful setup
+    root = setup.placefulSetUp(site=True)
+    setup.createStandardServices(root)
+    sm = setup.createServiceManager(root, True)
+    setup.addService(sm, Utilities, LocalUtilityService())
+
+    # Add a CookieBrowserIdManager Utility
+    setup.addUtility(sm, '', IBrowserIdManager, CookieBrowserIdManager())
+
+    # Add an ISessionDataContainer, registered under a number of names
+    sdc = session_data_container_class()
+    for product_id in ('', 'products.foo', 'products.bar', 'products.baz'):
+        setup.addUtility(sm, product_id, ISessionDataContainer, sdc)
+
+    # Register our adapters
+    ztapi.provideAdapter(IRequest, IBrowserId, BrowserId)
+    ztapi.provideAdapter(IRequest, ISession, Session)
+
+    # Return a request
+    request = HTTPRequest(None, None, {}, None)
+    return request
+
+def tearDown():
+    setup.placefulTearDown()
+
 
 def test_CookieBrowserIdManager():
     """
@@ -45,12 +76,8 @@ def test_CookieBrowserIdManager():
     >>> id2 = bim.generateUniqueId()
     >>> id1 != id2
     True
-    >>> IBrowserId.providedBy(id1)
-    True
-    >>> IBrowserId.providedBy(id2)
-    True
 
-    CookieBrowserIdManager.getRequestId pulls the IBrowserId from an
+    CookieBrowserIdManager.getRequestId pulls the browser id from an
     IHTTPRequest, or returns None if there isn't one stored in it.
     Because cookies cannnot be trusted, we confirm that they are not forged,
     returning None if we have a corrupt or forged browser id.
@@ -74,15 +101,17 @@ def test_CookieBrowserIdManager():
     >>> bim.getRequestId(request) == bim.getRequestId(request2)
     True
 
-    CookieBrowserIdManager.getBrowserId pulls the IBrowserId from an
+    CookieBrowserIdManager.getBrowserId pulls the browser id from an
     IHTTPRequest, or generates a new one and returns it after storing
     it in the request.
 
     >>> id3 = bim.getBrowserId(request)
     >>> id4 = bim.getBrowserId(request)
-    >>> str(id3) == str(id4)
+    >>> id3 == id4
     True
     >>> id3 == id4
+    True
+    >>> bool(id3)
     True
 
     Confirm the path of the cookie is correct. The value being tested
@@ -117,7 +146,21 @@ def test_CookieBrowserIdManager():
     True
     """
 
-def test_PersistentSessionIdContainer():
+
+def test_BrowserId():
+    """
+    >>> request = setUp(PersistentSessionDataContainer)
+
+    >>> id1 = BrowserId(request)
+    >>> id2 = BrowserId(request)
+    >>> id1 == id2
+    True
+
+    >>> tearDown()
+    """
+
+
+def test_PersistentSessionDataContainer():
     """
     Ensure mapping interface is working as expected
 
@@ -157,12 +200,49 @@ def test_PersistentSessionIdContainer():
     >>> ignore = sdc[1]
     >>> sdc.get(2, 'stale')
     'stale'
+
+    Ensure lastAccessTime on the ISessionData is being updated 
+    occasionally. The ISessionDataContainer maintains this whenever
+    the ISessionData is retrieved.
+
+    >>> sd = SessionData()
+    >>> sdc['product_id'] = sd
+    >>> sd.lastAccessTime > 0
+    True
+    >>> last1 = sd.lastAccessTime - 62
+    >>> sd.lastAccessTime = last1 # Wind back the clock
+    >>> last1 < sdc['product_id'].lastAccessTime
+    True
     """
 
-def test_Session():
+
+def test_RAMSessionDataContainer(self):
+    pass
+test_RAMSessionDataContainer.__doc__ = \
+        test_PersistentSessionDataContainer.__doc__.replace(
+            'PersistentSessionDataContainer', 'RAMSessionDataContainer'
+            )
+
+
+def test_SessionProductData():
     """
-    >>> data_container = PersistentSessionDataContainer()
-    >>> session = Session(data_container, 'browser id', 'zopeproducts.foo')
+    >>> session = SessionProductData()
+    >>> ISessionProductData.providedBy(session)
+    True
+    """
+
+
+def test_SessionData():
+    """
+    >>> session = SessionData()
+
+    Is the interface defined?
+
+    >>> ISessionData.providedBy(session)
+    True
+
+    Make sure it actually works
+
     >>> session['color']
     Traceback (most recent call last):
     File "<stdin>", line 1, in ?
@@ -172,15 +252,6 @@ def test_Session():
     >>> session['color'] = 'red'
     >>> session['color']
     'red'
-
-    And make sure no namespace conflicts...
-
-    >>> session2 = Session(data_container, 'browser id', 'zopeproducts.bar')
-    >>> session2['color'] = 'blue'
-    >>> session['color']
-    'red'
-    >>> session2['color']
-    'blue'
 
     Test the rest of the dictionary interface...
 
@@ -207,63 +278,47 @@ def test_Session():
     True
     """
 
-
-def test_localutilities():
+def test_Session():
     """
-    Setup a placeful environment with a IBrowserIdManager
-    and ISessionDataContainer
+    >>> request = setUp(PersistentSessionDataContainer)
+    >>> request2 = HTTPRequest(None, None, {}, None)
+  
+    >>> ISession.providedBy(Session(request))
+    True
 
-    >>> root = setup.placefulSetUp(site=True)
-    >>> setup.createStandardServices(root)
-    >>> sm = setup.createServiceManager(root, True)
-    >>> us = setup.addService(sm, Utilities, LocalUtilityService())
-    >>> idmanager = CookieBrowserIdManager()
-    >>> zope.interface.directlyProvides(idmanager,
-    ...                                 IAttributeAnnotatable, ILocalUtility)
-    >>> bim = setup.addUtility(
-    ...     sm, '', IBrowserIdManager, idmanager, 'test')
-    >>> pdc = PersistentSessionDataContainer()
-    >>> zope.interface.directlyProvides(pdc,
-    ...                                 IAttributeAnnotatable, ILocalUtility)
-    >>> sdc = setup.addUtility(sm, 'persistent', ISessionDataContainer, pdc)
-    >>> sdc = setup.addUtility(sm, 'products.foo',ISessionDataContainer, pdc)
-    >>> sdc = setup.addUtility(sm, 'products.bar', ISessionDataContainer, pdc)
-    >>> request = HTTPRequest(None, None, {}, None)
-   
-    Make sure we can access utilities
-
-    >>> sdc = zapi.getUtility(ISessionDataContainer, 'persistent',
-    ...                       context=root)
-    >>> bim = zapi.getUtility(IBrowserIdManager, context=root)
-
-    Make sure getSession works
-
-    >>> session1 = getSession(root, request, 'products.foo')
-    >>> session2 = getSession(root, request, 'products.bar', 'persistent')
-    >>> session3 = getSession(root, request, 'products.baz', pdc)
+    >>> session1 = Session(request)['products.foo']
+    >>> session2 = Session(request)['products.bar']
+    >>> session3 = Session(request)['products.bar']  # dupe
+    >>> session4 = Session(request2)['products.bar'] # not dupe
 
     Make sure it returned sane values
 
-    >>> ISession.providedBy(session1)
+    >>> ISessionData.providedBy(session1)
     True
-    >>> ISession.providedBy(session2)
+    >>> ISessionData.providedBy(session2)
     True
-    >>> ISession.providedBy(session3)
+    >>> session2 == session3
+    True
+    >>> ISessionData.providedBy(session4)
     True
 
-    Make sure that product_ids don't share a namespace
+    Make sure that product_ids don't share a namespace, except when they should
 
     >>> session1['color'] = 'red'
     >>> session2['color'] = 'blue'
+    >>> session4['color'] = 'vomit'
     >>> session1['color']
     'red'
     >>> session2['color']
     'blue'
+    >>> session3['color']
+    'blue'
+    >>> session4['color']
+    'vomit'
 
-    >>> setup.placefulTearDown()
-    >>> 'Thats all folks!'
-    'Thats all folks!'
+    >>> tearDown()
     """
+
 
 def test_suite():
     return unittest.TestSuite((

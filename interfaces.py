@@ -27,7 +27,7 @@ class IBrowserIdManager(Interface):
     """Manages sessions - fake state over multiple browser requests."""
 
     def getBrowserId(request):
-        """Return the IBrowserId for the given request.
+        """Return the browser id for the given request as a string.
         
         If the request doesn't have an attached sessionId a new one will be
         generated.
@@ -83,15 +83,15 @@ class IBrowserId(Interface):
         """As a unique ASCII string"""
 
 
-class ISessionDataContainer(IReadMapping, IWriteMapping):
+class ISessionDataContainer(IMapping):
     """Stores data objects for sessions.
 
     The object implementing this interface is responsible for expiring data as
     it feels appropriate.
 
-    Used like::
+    Usage::
 
-      session_data_container[browser_id][product_id][key] = value
+      session_data_container[product_id][browser_id][key] = value
 
     Attempting to access a key that does not exist will raise a KeyError.
     """
@@ -116,17 +116,47 @@ class ISessionDataContainer(IReadMapping, IWriteMapping):
             min=1,
             )
 
+    def __getitem__(self, product_id):
+        """Return an ISessionProductData"""
 
-class ISession(IMapping):
-    """A session object that keeps the state of the user.
+    def __setitem__(self, product_id, value):
+        """Store an ISessionProductData"""
 
-    To access bits of data within an ISessionDataContainer, we
-    need to know the browser_id, the product_id, and the actual key.
-    An ISession is a wrapper around an ISessionDataContainer that
-    simplifies this by storing the browser_id and product_id enabling
-    access using just the key.
+
+class ISession(Interface):
+    """This object allows retrieval of the correct ISessionData
+    for a particular product id
+    
+    >>> session = ISession(request)[product_id]
+    >>> session['color'] = 'red'
     """
 
-    def __init__(session_data_container, browser_id, product_id):
-        """Construct an ISession"""
+    def __getitem__(product_id):
+        """Locate the correct ISessionDataContainer for the given product id
+        and return that product id's ISessionData"""
+
+
+class ISessionProductData(IReadMapping, IWriteMapping):
+    """Storage for a particular product id's session data, containing
+    0 or more ISessionData instances"""
+
+    lastAccessTime = schema.Int(
+            title=_("Last Access Time"),
+            description=_(
+                "Approximate epoch time this ISessionData was last retrieved "
+                "from its ISessionDataContainer"
+                ),
+            default=0,
+            required=True,
+            )
+
+    def __getitem__(self, browser_id):
+        """Return an ISessionData"""
+
+    def __setitem__(self, browser_id, session_data):
+        """Store an ISessionData"""
+
+class ISessionData(IMapping):
+    """Storage for a particular product id and browser id's session data"""
+
 
