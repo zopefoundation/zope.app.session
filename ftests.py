@@ -16,7 +16,7 @@
 $Id: tests.py 26427 2004-07-12 16:05:02Z Zen $
 """
 import unittest
-from zope.app.tests.functional import BrowserTestCase
+from zope.app.testing.functional import BrowserTestCase
 from zope.app.zptpage.zptpage import ZPTPage
 
 class ZPTSessionTest(BrowserTestCase):

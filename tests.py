@@ -17,7 +17,7 @@ $Id$
 """
 import unittest, doctest, os, os.path, sys
 from zope.app import zapi
-from zope.app.tests import ztapi, placelesssetup
+from zope.app.testing import ztapi, placelesssetup
 
 from zope.app.session.interfaces import IClientId, IClientIdManager, ISession
 from zope.app.session.interfaces import ISessionDataContainer
@@ -97,5 +97,3 @@ def test_suite():
 
 if __name__ == '__main__':
     unittest.main()
-
-# vim: set filetype=python ts=4 sw=4 et si

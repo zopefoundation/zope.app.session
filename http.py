@@ -21,7 +21,7 @@ from zope.app.annotation.interfaces import IAttributeAnnotatable
 from zope.app.i18n import ZopeMessageIDFactory as _
 from zope.app import zapi
 from zope.app.session.interfaces import IClientIdManager
-from zope.app.utility.interfaces import ILocalUtility
+from zope.app.component.interfaces import ILocalUtility
 from zope import schema
 from zope.interface import implements
 from zope.server.http.http_date import build_http_date
@@ -71,7 +71,7 @@ class ICookieClientIdManager(IClientIdManager):
             )
 
 class CookieClientIdManager(Persistent):
-    """Session service implemented using cookies."""
+    """Session utility implemented using cookies."""
 
     implements(IClientIdManager, ICookieClientIdManager,
                ILocalUtility, IAttributeAnnotatable,
@@ -254,10 +254,10 @@ class CookieClientIdManager(Persistent):
         # TODO: Currently, the path is the ApplicationURL. This is reasonable,
         #     and will be adequate for most purposes.
         #     A better path to use would be that of the folder that contains
-        #     the service-manager this service is registered within. However,
+        #     the site manager this service is registered within. However,
         #     that would be expensive to look up on each request, and would
         #     have to be altered to take virtual hosting into account.
-        #     Seeing as this service instance has a unique namespace for its
+        #     Seeing as this utility instance has a unique namespace for its
         #     cookie, using ApplicationURL shouldn't be a problem.
 
         if self.cookieLifetime is not None:

@@ -26,7 +26,7 @@ from zope.interface import implements
 from zope.component import ComponentLookupError
 from zope.app.zapi import getUtility
 from BTrees.OOBTree import OOBTree
-from zope.app.utility.interfaces import ILocalUtility
+from zope.app.component.interfaces import ILocalUtility
 from zope.app.annotation.interfaces import IAttributeAnnotatable
 
 from interfaces import \

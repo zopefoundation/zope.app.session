@@ -11,7 +11,7 @@
 # FOR A PARTICULAR PURPOSE.
 #
 ##############################################################################
-"""Interfaces for session service.
+"""Interfaces for session utility.
 
 $Id$
 """

@@ -15,7 +15,7 @@
 
 This module contains code to bootstrap a Zope3 instance.  For example
 it makes sure a root folder exists and creates and configures some
-essential services.
+essential utilities.
 
 $Id$
 """
