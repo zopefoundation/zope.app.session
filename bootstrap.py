@@ -20,6 +20,8 @@ essential utilities.
 $Id$
 """
 
+import transaction
+
 from zope.app.appsetup.bootstrap import ensureUtility, getInformationFromEvent
 
 from zope.app.session.interfaces import \
@@ -46,5 +48,5 @@ def bootStrapSubscriber(event):
         PersistentSessionDataContainer,
         )
 
-    get_transaction().commit()
+    transaction.commit()
     connection.close()
