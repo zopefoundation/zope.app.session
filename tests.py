@@ -19,13 +19,13 @@ import unittest, doctest, os, os.path, sys
 from zope.app import zapi
 from zope.app.tests import ztapi, placelesssetup
 
-from zope.app.session.interfaces import \
-        IClientId, IClientIdManager, ISession, ISessionDataContainer, \
-        ISessionPkgData, ISessionData
+from zope.app.session.interfaces import IClientId, IClientIdManager, ISession
+from zope.app.session.interfaces import ISessionDataContainer
+from zope.app.session.interfaces import ISessionPkgData, ISessionData
 
-from zope.app.session.session import \
-        ClientId, Session, \
-        PersistentSessionDataContainer, RAMSessionDataContainer
+from zope.app.session.session import ClientId, Session
+from zope.app.session.session import PersistentSessionDataContainer
+from zope.app.session.session import RAMSessionDataContainer
 
 from zope.app.session.http import CookieClientIdManager
 
