@@ -16,16 +16,15 @@ Session implementation using cookies
 
 $Id$
 """
-import sha, time, string, random, hmac, logging, warnings, thread
+import sha, time, string, random, hmac, warnings, thread
 from UserDict import IterableUserDict
 from heapq import heapify, heappop
 
 from persistent import Persistent
 from zope.server.http.http_date import build_http_date
 from zope.interface import implements
-from zope.interface.common.mapping import IMapping
 from zope.component import ComponentLookupError
-from zope.app import zapi
+from zope.app.zapi import getUtility
 from BTrees.OOBTree import OOBTree
 from zope.app.utility.interfaces import ILocalUtility
 from zope.app.annotation.interfaces import IAttributeAnnotatable
@@ -50,7 +49,7 @@ class BrowserId(str):
 
     def __new__(cls, request):
         return str.__new__(
-                cls, zapi.getUtility(IBrowserIdManager).getBrowserId(request)
+                cls, getUtility(IBrowserIdManager).getBrowserId(request)
                 )
 
 
@@ -218,7 +217,7 @@ class Session:
         # First locate the ISessionDataContainer by looking up
         # the named Utility, and falling back to the unnamed one.
         try:
-            sdc = zapi.getUtility(ISessionDataContainer, product_id)
+            sdc = getUtility(ISessionDataContainer, product_id)
         except ComponentLookupError:
             # XXX: Do we want this?
             warnings.warn(
@@ -226,7 +225,7 @@ class Session:
                     'Using default' % repr(product_id),
                     RuntimeWarning
                     )
-            sdc = zapi.getUtility(ISessionDataContainer)
+            sdc = getUtility(ISessionDataContainer)
 
         # The ISessionDataContainer contains two levels:
         # ISessionDataContainer[product_id] == ISessionProductData
