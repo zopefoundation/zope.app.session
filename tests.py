@@ -34,6 +34,11 @@ from zope.publisher.http import HTTPRequest
 
 from zope.pagetemplate.pagetemplate import PageTemplate
 
+from zope.app.appsetup.tests import TestBootstrapSubscriber, EventStub
+from zope.app.appsetup.bootstrap import bootStrapSubscriber
+from zope.app.session.bootstrap import bootStrapSubscriber as \
+     sessionBootstrapSubscriber
+
 def setUp(session_data_container_class=PersistentSessionDataContainer):
     placelesssetup.setUp()
     ztapi.provideAdapter(IRequest, IClientId, ClientId)
@@ -48,19 +53,17 @@ def setUp(session_data_container_class=PersistentSessionDataContainer):
 def tearDown():
     placelesssetup.tearDown()
 
+class TestBootstrap(TestBootstrapSubscriber):
 
-from zope.app.appsetup.tests import TestBootstrapSubscriberBase, EventStub
-class TestBootstrapInstance(TestBootstrapSubscriberBase):
+    def test_bootstrapSusbcriber(self):
+        bootStrapSubscriber(EventStub(self.db))
 
-    def test_bootstrapInstance(self):
-        from zope.app.appsetup.bootstrap import bootstrapInstance
-        bootstrapInstance(EventStub(self.db))
-        from zope.app.session.bootstrap import bootstrapInstance
-        bootstrapInstance(EventStub(self.db))
+        sessionBootstrapSubscriber(EventStub(self.db))
+
         from zope.app.publication.zopepublication import ZopePublication
         from zope.app.component.hooks import setSite
         from zope.app import zapi
-        
+
         cx = self.db.open()
         root = cx.root()
         root_folder = root[ZopePublication.root_name]
@@ -68,8 +71,8 @@ class TestBootstrapInstance(TestBootstrapSubscriberBase):
 
         zapi.getUtility(IClientIdManager)
         zapi.getUtility(ISessionDataContainer)
-        
-        
+
+
         cx.close()
 
 # Test the code in our API documentation is correct
@@ -85,15 +88,14 @@ test_documentation.__doc__ = '''
     ''' % (open(os.path.join(os.path.dirname(__file__), 'api.txt')).read(),)
 
 def test_suite():
-    return unittest.TestSuite((
-        doctest.DocTestSuite(),
-        doctest.DocTestSuite('zope.app.session.session'),
-        doctest.DocTestSuite('zope.app.session.http'),
-        unittest.makeSuite(TestBootstrapInstance),
-        ))
+    suite = unittest.TestSuite()
+    suite.addTest(unittest.makeSuite(TestBootstrap))
+    suite.addTest(doctest.DocTestSuite())
+    suite.addTest(doctest.DocTestSuite('zope.app.session.session'))
+    suite.addTest(doctest.DocTestSuite('zope.app.session.http'))
+    return suite
 
 if __name__ == '__main__':
     unittest.main()
 
 # vim: set filetype=python ts=4 sw=4 et si
-

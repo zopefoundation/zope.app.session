@@ -1,6 +1,6 @@
 ##############################################################################
 #
-# Copyright (c) 2002 Zope Corporation and Contributors.
+# Copyright (c) 2002, 2004 Zope Corporation and Contributors.
 # All Rights Reserved.
 #
 # This software is subject to the provisions of the Zope Public License,
@@ -20,24 +20,31 @@ essential services.
 $Id$
 """
 
-from zope.app.appsetup.bootstrap import BootstrapSubscriberBase
-
+from zope.app.appsetup.bootstrap import ensureUtility, getInformationFromEvent
 
 from zope.app.session.interfaces import \
      IClientIdManager, ISessionDataContainer
 from zope.app.session.http import CookieClientIdManager
 from zope.app.session.session import PersistentSessionDataContainer
 
-class BootstrapInstance(BootstrapSubscriberBase):
+def bootStrapSubscriber(event):
+    """Subscriber to the IDataBaseOpenedEvent
 
-    def doSetup(self):
-        self.ensureUtility(
-                IClientIdManager, 'CookieClientIdManager',
-                CookieClientIdManager,
-                )
-        self.ensureUtility(
-                ISessionDataContainer, 'PersistentSessionDataContainer',
-                PersistentSessionDataContainer,
-                )
+    Create utility at that time if not yet present
+    """
 
-bootstrapInstance = BootstrapInstance()
+    db, connection, root, root_folder = getInformationFromEvent(event)
+
+    ensureUtility(
+        root_folder,
+        IClientIdManager, 'CookieClientIdManager',
+        CookieClientIdManager,
+        )
+    ensureUtility(
+        root_folder,
+        ISessionDataContainer, 'PersistentSessionDataContainer',
+        PersistentSessionDataContainer,
+        )
+
+    get_transaction().commit()
+    connection.close()
