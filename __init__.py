@@ -16,13 +16,13 @@
 This is more of a demonstration than a full implementation, but it should
 work.
 
-$Id: __init__.py,v 1.3 2004/03/13 23:01:10 srichter Exp $
+$Id: __init__.py,v 1.4 2004/05/10 15:50:11 fdrake Exp $
 """
 import sha, time, string, random, hmac, logging
 from UserDict import IterableUserDict
 from heapq import heapify, heappop
 
-from persistence import Persistent
+from persistent import Persistent
 from zope.server.http.http_date import build_http_date
 from zope.interface import implements
 from zope.interface.common.mapping import IMapping
