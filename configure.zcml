@@ -2,23 +2,6 @@
     xmlns="http://namespaces.zope.org/zope"
     xmlns:browser="http://namespaces.zope.org/browser">
 
-  <!-- For backward compatibility -->
-
-  <modulealias
-      module="zope.app.session"
-      alias="zope.app.utilities.session"
-      />
-
-  <modulealias
-      module="zope.app.session"
-      alias="zope.app.interfaces.utilities"
-      />
-
-  <modulealias
-      module=".interfaces"
-      alias="zope.app.interfaces.utilities.session"
-      />
-
   <!-- Session machinery -->
 
   <content class=".CookieBrowserIdManager">
