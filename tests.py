@@ -1,4 +1,3 @@
-# -*- coding: ascii -*-
 ##############################################################################
 #
 # Copyright (c) 2004 Zope Corporation and Contributors.
@@ -12,7 +11,8 @@
 # FOR A PARTICULAR PURPOSE.
 #
 ##############################################################################
-"""
+"""Session tests
+
 $Id$
 """
 import unittest, doctest, os, os.path, sys

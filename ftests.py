@@ -1,4 +1,3 @@
-# -*- coding: ascii -*-
 ##############################################################################
 #
 # Copyright (c) 2004 Zope Corporation and Contributors.
@@ -12,7 +11,8 @@
 # FOR A PARTICULAR PURPOSE.
 #
 ##############################################################################
-"""
+"""Session functional tests.
+
 $Id: tests.py 26427 2004-07-12 16:05:02Z Zen $
 """
 import unittest
