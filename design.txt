@@ -6,7 +6,7 @@ client without requiring the authentication of a principal.  We
 associate an identifier with a particular client. Whenever we get a
 request from that client, we compute the identifier and use the
 identifier to look up associated information, which is stored on the
-server. 
+server.
 
 A major disadvantage of sessions is that they require management of
 information on the server. This can have major implications for
@@ -20,7 +20,7 @@ Design Issues
 Sessions introduce a number of issues to be considered:
 
 - Clients have to be identified. A number of approaches are possible,
-  including: 
+  including:
 
   o Using HTTP cookies. The application assigns a client identifier,
     which is stored in a cookie.  This technique is the most
@@ -68,7 +68,7 @@ Sessions introduce a number of issues to be considered:
 
   If you know that scalability is not (and never will be) an issue,
   you can just use the object database.
- 
+
   If you have client data that needs to be updated often (as in every
   request), consider storing the data on the client.  (Like all data
   received from a client, it may be tainted and, in most instances,
@@ -145,4 +145,4 @@ The semantics of a session data for a particular application key are
 determined by the session data type interface.
 `IPersistentSessionData` defines the application data to be a mapping
 object by default.  Other data interfaces could specify different
-bahavior.  
+bahavior.
