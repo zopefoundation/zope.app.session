@@ -99,14 +99,14 @@ class CookieBrowserIdManager(Persistent):
 
     def setRequestId(self, request, id):
         """Set cookie with id on request."""
-        # XXX Currently, the path is the ApplicationURL. This is reasonable,
-        #     and will be adequate for most purposes.
-        #     A better path to use would be that of the folder that contains
-        #     the service-manager this service is registered within. However,
-        #     that would be expensive to look up on each request, and would
-        #     have to be altered to take virtual hosting into account.
-        #     Seeing as this service instance has a unique namespace for its
-        #     cookie, using ApplicationURL shouldn't be a problem.
+        # Currently, the path is the ApplicationURL. This is reasonable, and
+        # will be adequate for most purposes.
+        # TODO: A better path to use would be that of the folder that contains
+        # the service-manager this service is registered within. However, that
+        # would be expensive to look up on each request, and would have to be
+        # altered to take virtual hosting into account.  Seeing as this
+        # service instance has a unique namespace for its cookie, using
+        # ApplicationURL shouldn't be a problem.
 
         if self.cookieLifetime is not None:
             if self.cookieLifetime:
@@ -219,7 +219,6 @@ class Session:
         try:
             sdc = getUtility(ISessionDataContainer, product_id)
         except ComponentLookupError:
-            # XXX: Do we want this?
             warnings.warn(
                     'Unable to find ISessionDataContainer named %s. '
                     'Using default' % repr(product_id),

@@ -39,7 +39,7 @@ class IBrowserIdManager(Interface):
         """
 
 
-    """ XXX: Want this
+    """ TODO: Want this:
     def invalidate(browser_id):
         ''' Expire the browser_id, and remove any matching ISessionData data 
         '''
