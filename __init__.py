@@ -16,7 +16,7 @@
 This is more of a demonstration than a full implementation, but it should
 work.
 
-$Id: __init__.py,v 1.1 2004/03/10 12:11:19 srichter Exp $
+$Id: __init__.py,v 1.2 2004/03/11 12:38:22 srichter Exp $
 """
 import sha, time, string, random, hmac, logging
 from UserDict import IterableUserDict
@@ -28,7 +28,7 @@ from zope.interface import implements
 from zope.interface.common.mapping import IMapping
 from zope.app import zapi
 from BTrees.OOBTree import OOBTree
-from zope.app.interfaces.services.utility import ILocalUtility
+from zope.app.utility.interfaces import ILocalUtility
 from zope.app.interfaces.annotation import IAttributeAnnotatable
 
 from interfaces import IBrowserIdManager, IBrowserId, ICookieBrowserIdManager, \

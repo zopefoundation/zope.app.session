@@ -13,15 +13,15 @@
 #
 ##############################################################################
 '''
-$Id: tests.py,v 1.1 2004/03/10 12:11:19 srichter Exp $
+$Id: tests.py,v 1.2 2004/03/11 12:38:22 srichter Exp $
 '''
 import unittest, doctest, time, rfc822
 from zope.app import zapi
 from zope.app.tests import ztapi
 from zope.app.tests import setup
 import zope.interface
-from zope.app.interfaces.services.utility import ILocalUtility
-from zope.app.services.utility import LocalUtilityService
+from zope.app.utility.interfaces import ILocalUtility
+from zope.app.utility import LocalUtilityService
 from zope.app.services.servicenames import Utilities
 from zope.app.interfaces.annotation import IAttributeAnnotatable
 
