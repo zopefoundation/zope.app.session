@@ -55,6 +55,11 @@
     <allow interface=".interfaces.ISession" />
   </content>
 
+  <subscriber
+      for="zope.app.appsetup.IDatabaseOpenedEvent"
+      factory=".bootstrap.bootstrapInstance"
+      />
+
   <include file="browser.zcml" />
 
 </configure>

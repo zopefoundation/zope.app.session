@@ -319,10 +319,34 @@ def test_Session():
     >>> tearDown()
     """
 
+from zope.app.appsetup.tests import TestBootstrapSubscriberBase, EventStub
+class TestBootstrapInstance(TestBootstrapSubscriberBase):
+
+    def test_bootstrapInstance(self):
+        from zope.app.appsetup.bootstrap import bootstrapInstance
+        bootstrapInstance(EventStub(self.db))
+        from zope.app.session.bootstrap import bootstrapInstance
+        bootstrapInstance(EventStub(self.db))
+        from zope.app.publication.zopepublication import ZopePublication
+        from zope.app.component.hooks import setSite
+        from zope.app import zapi
+        
+        cx = self.db.open()
+        root = cx.root()
+        root_folder = root[ZopePublication.root_name]
+        setSite(root_folder)
+
+        zapi.getUtility(IBrowserIdManager)
+        zapi.getUtility(ISessionDataContainer)
+        
+        
+        cx.close()
+
 
 def test_suite():
     return unittest.TestSuite((
         doctest.DocTestSuite(),
+        unittest.makeSuite(TestBootstrapInstance),
         ))
 
 if __name__ == '__main__':
