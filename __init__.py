@@ -180,10 +180,6 @@ class RAMSessionDataContainer(PersistentSessionDataContainer):
 
     def _getData(self):
 
-        # XXX: Nuke
-        if not hasattr(self, 'key'):
-            self.key = sha.new(str(time.time() + random.random())).hexdigest()
-
         # Open a connection to _ram_storage per thread
         tid = thread.get_ident()
         if not self._conns.has_key(tid):
