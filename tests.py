@@ -82,9 +82,7 @@ test_documentation.__doc__ = '''
 
     >>> tearDown()
 
-    ''' % (open(
-        os.path.join(os.path.dirname(__file__), 'session.stx')
-        ).read(),)
+    ''' % (open(os.path.join(os.path.dirname(__file__), 'api.txt')).read(),)
 
 def test_suite():
     return unittest.TestSuite((
