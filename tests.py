@@ -215,7 +215,7 @@ def test_localutilities():
 
     >>> root = setup.placefulSetUp(site=True)
     >>> setup.createStandardServices(root)
-    >>> sm = setup.createServiceManager(root)
+    >>> sm = setup.createServiceManager(root, True)
     >>> us = setup.addService(sm, Utilities, LocalUtilityService())
     >>> idmanager = CookieBrowserIdManager()
     >>> zope.interface.directlyProvides(idmanager,
@@ -232,8 +232,9 @@ def test_localutilities():
    
     Make sure we can access utilities
 
-    >>> sdc = zapi.getUtility(root, ISessionDataContainer, 'persistent')
-    >>> bim = zapi.getUtility(root, IBrowserIdManager)
+    >>> sdc = zapi.getUtility(ISessionDataContainer, 'persistent',
+    ...                       context=root)
+    >>> bim = zapi.getUtility(IBrowserIdManager, context=root)
 
     Make sure getSession works
 

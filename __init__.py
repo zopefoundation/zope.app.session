@@ -192,7 +192,7 @@ class Session(IterableUserDict):
                 data[product_id] = SessionData()
                 self.data = data[product_id]
 
-
+# XXX: remove context arg
 def getSession(context, request, product_id, session_data_container=None):
     ''' Retrieve an ISession. session_data_container defaults to 
         an ISessionDataContainer utility registered with the name product_id
@@ -202,15 +202,13 @@ def getSession(context, request, product_id, session_data_container=None):
             into a single object.
     '''
     if session_data_container is None:
-        dc = zapi.getUtility(context, ISessionDataContainer, product_id)
+        dc = zapi.getUtility(ISessionDataContainer, product_id)
     elif ISessionDataContainer.providedBy(session_data_container):
         dc = session_data_container
     else:
-        dc = zapi.getUtility(
-                context, ISessionDataContainer, session_data_container
-                )
+        dc = zapi.getUtility(ISessionDataContainer, session_data_container)
 
-    bim = zapi.getUtility(context, IBrowserIdManager)
+    bim = zapi.getUtility(IBrowserIdManager)
     browser_id = bim.getBrowserId(request)
     return Session(dc, browser_id, product_id)
 
