@@ -16,7 +16,7 @@
 This is more of a demonstration than a full implementation, but it should
 work.
 
-$Id: __init__.py,v 1.4 2004/05/10 15:50:11 fdrake Exp $
+$Id$
 """
 import sha, time, string, random, hmac, logging
 from UserDict import IterableUserDict

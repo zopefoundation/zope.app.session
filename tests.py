@@ -13,7 +13,7 @@
 #
 ##############################################################################
 '''
-$Id: tests.py,v 1.4 2004/03/13 23:55:26 srichter Exp $
+$Id$
 '''
 import unittest, doctest, time, rfc822
 from zope.app import zapi
