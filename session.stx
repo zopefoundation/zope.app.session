@@ -1,0 +1,47 @@
+Session Support
+---------------
+
+Sessions allow us to fake state over a stateless protocol - HTTP. We do this
+by having a unique identifier stored across multiple HTTP requests, be it
+a cookie or some id mangled into the URL.
+
+The IBrowserIdManager Utility provides this unique id. It is responsible
+for propagating this id so that future requests from the browser get
+the same id (eg. by setting an HTTP cookie)
+
+ISessionDataContainer Utilities provide a mapping interface to store
+session data. The ISessionDataContainer is responsible for expiring
+data.
+
+
+Python example::
+
+    >>> browser_id = getAdapter(request, IBrowserId))
+
+    >>> explicit_dm = getUtility(context, ISessionDataContainer, 
+    ...     'zopeproducts.fooprod')
+    >>> session = Session(explicit_dm, browser_id, 'zopeproducts.foorprod')
+    >>> session['color'] = 'red'
+
+    or....
+
+    >>> session = zapi.getSession(context, request, 'zopeproducts.fooprod')
+    >>> session['color'] = 'red'
+
+Page Template example::
+
+    <tal:x condition="exists:session/zopeproducts.fooprod/count">
+       <tal:x condition="python:
+        session['zopeproducts.fooprod']['count'] += 1" />
+    </tal:x>
+    <tal:x condition="not:exists:session/zopeprodicts.fooprod/count">
+        <tal:x condition="python:
+            session['zopeproducts.fooprod']['count'] = 1 />
+    </tal:x>
+    <span content="session/zopeproducts.fooprod/count">6</span>
+
+TODO
+----
+Do we want to provide one or more 'default' ISessionDataContainer's out of the
+box (eg. 'persistant' and 'transient')?
+
