@@ -21,14 +21,12 @@ from zope.app.zptpage.zptpage import ZPTPage
 
 class ZPTSessionTest(BrowserTestCase):
     content = u'''
-        <div tal:define="session request/session:products.foo" tal:omit-tag="">
-            <script type="text/server-python">
-                try:
-                    session['count'] += 1
-                except KeyError:
-                    session['count'] = 1
-            </script> 
-
+        <div tal:define="
+                 session request/session:products.foo;
+                 dummy python:session.__setitem__(
+                        'count',
+                        session.get('count', 0) + 1)
+                 " tal:omit-tag="">
             <span tal:replace="session/count" />
         </div>
         '''
