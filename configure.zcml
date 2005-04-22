@@ -1,7 +1,9 @@
 <configure 
     xmlns="http://namespaces.zope.org/zope"
-    xmlns:browser="http://namespaces.zope.org/browser">
-
+    xmlns:browser="http://namespaces.zope.org/browser"
+    i18n_domain="zope"
+    >
+    
   <adapter
       for="zope.publisher.interfaces.IRequest"
       provides=".interfaces.IClientId"
@@ -70,5 +72,25 @@
       />
 
   <include file="browser.zcml" />
+
+  <!-- Registering documentation with API doc -->
+  <configure
+      xmlns:apidoc="http://namespaces.zope.org/apidoc"
+      xmlns:zcml="http://namespaces.zope.org/zcml"
+      zcml:condition="have apidoc">
+
+    <apidoc:bookchapter
+        id="session"
+        title="Sessions"
+        doc_path="design.txt"
+        />
+    <apidoc:bookchapter
+        id="api"
+        title="API"
+        doc_path="api.txt"
+        parent="session"
+        />
+
+  </configure>
 
 </configure>
