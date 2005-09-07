@@ -90,15 +90,15 @@ class CookieClientIdManager(Persistent):
         This creates one if necessary:
 
           >>> from zope.publisher.http import HTTPRequest
-          >>> request = HTTPRequest(None, None, {}, None)
+          >>> request = HTTPRequest(None, {}, None)
           >>> bim = CookieClientIdManager()
           >>> id = bim.getClientId(request)
           >>> id == bim.getClientId(request)
           True
 
         The id is retained accross requests:
-        
-          >>> request2 = HTTPRequest(None, None, {}, None)
+
+          >>> request2 = HTTPRequest(None, {}, None)
           >>> request2._cookies = dict(
           ...   [(name, cookie['value'])
           ...    for (name, cookie) in request.response._cookies.items()
@@ -142,13 +142,13 @@ class CookieClientIdManager(Persistent):
 
     def getRequestId(self, request):
         """Return the browser id encoded in request as a string
-        
+
         Return None if an id is not set.
 
         For example:
 
             >>> from zope.publisher.http import HTTPRequest
-            >>> request = HTTPRequest(None, None, {}, None)
+            >>> request = HTTPRequest(None, {}, None)
             >>> bim = CookieClientIdManager()
 
         Because no cookie has been set, we get no id:
@@ -169,7 +169,7 @@ class CookieClientIdManager(Persistent):
         When we set the request id, we also set a response cookie.  We
         can simulate getting this cookie back in a subsequent request:
 
-            >>> request2 = HTTPRequest(None, None, {}, None)
+            >>> request2 = HTTPRequest(None, {}, None)
             >>> request2._cookies = dict(
             ...   [(name, cookie['value'])
             ...    for (name, cookie) in request.response._cookies.items()
@@ -210,7 +210,7 @@ class CookieClientIdManager(Persistent):
         invalid value is silently ignored:
 
             >>> from zope.publisher.http import HTTPRequest
-            >>> request = HTTPRequest(None, None, {}, None)
+            >>> request = HTTPRequest(None, {}, None)
             >>> bim = CookieClientIdManager()
             >>> bim.getRequestId(request)
             >>> bim.setRequestId(request, 'invalid id')
@@ -233,7 +233,7 @@ class CookieClientIdManager(Persistent):
         Expiry time of 0 means never (well - close enough)
 
             >>> bim.cookieLifetime = 0
-            >>> request = HTTPRequest(None, None, {}, None)
+            >>> request = HTTPRequest(None, {}, None)
             >>> bid = bim.getClientId(request)
             >>> cookie = request.response.getCookie(bim.namespace)
             >>> cookie['expires']
@@ -242,7 +242,7 @@ class CookieClientIdManager(Persistent):
         A non-zero value means to expire after than number of seconds:
 
             >>> bim.cookieLifetime = 3600
-            >>> request = HTTPRequest(None, None, {}, None)
+            >>> request = HTTPRequest(None, {}, None)
             >>> bid = bim.getClientId(request)
             >>> cookie = request.response.getCookie(bim.namespace)
             >>> import rfc822

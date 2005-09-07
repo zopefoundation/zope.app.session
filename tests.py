@@ -47,7 +47,7 @@ def setUp(session_data_container_class=PersistentSessionDataContainer):
     sdc = session_data_container_class()
     for product_id in ('', 'products.foo', 'products.bar', 'products.baz'):
         ztapi.provideUtility(ISessionDataContainer, sdc, product_id)
-    request = HTTPRequest(None, None, {}, None)
+    request = HTTPRequest(None, {}, None)
     return request
 
 def tearDown():

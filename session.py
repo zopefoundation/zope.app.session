@@ -49,7 +49,7 @@ def digestEncode(s):
 
 class ClientId(str):
     """See zope.app.interfaces.utilities.session.IClientId
-   
+
         >>> import tests
         >>> request = tests.setUp()
 
@@ -93,7 +93,7 @@ class PersistentSessionDataContainer(Persistent, IterableUserDict):
 
         To ensure stale data is removed, we can wind
         back the clock using undocumented means...
-            
+
             >>> sd.lastAccessTime = sd.lastAccessTime - 64
             >>> sdc._v_last_sweep = sdc._v_last_sweep - 4
 
@@ -104,7 +104,7 @@ class PersistentSessionDataContainer(Persistent, IterableUserDict):
                 [...]
             KeyError: 'clientid'
 
-        Ensure lastAccessTime on the ISessionData is being updated 
+        Ensure lastAccessTime on the ISessionData is being updated
         occasionally. The ISessionDataContainer maintains this whenever
         the ISessionData is set or retrieved.
 
@@ -182,7 +182,7 @@ class PersistentSessionDataContainer(Persistent, IterableUserDict):
 
     def sweep(self):
         """Clean out stale data
-       
+
             >>> sdc = PersistentSessionDataContainer()
             >>> sdc['1'] = SessionData()
             >>> sdc['2'] = SessionData()
@@ -219,8 +219,8 @@ class PersistentSessionDataContainer(Persistent, IterableUserDict):
 
 class RAMSessionDataContainer(PersistentSessionDataContainer):
     """A SessionDataContainer that stores data in RAM.
-    
-    Currently session data is not shared between Zope clients, so 
+
+    Currently session data is not shared between Zope clients, so
     server affinity will need to be maintained to use this in a ZEO cluster.
 
         >>> sdc = RAMSessionDataContainer()
@@ -268,11 +268,11 @@ class Session(object):
 
     def __getitem__(self, pkg_id):
         """See zope.app.session.interfaces.ISession
-       
+
             >>> import tests
             >>> request = tests.setUp(PersistentSessionDataContainer)
-            >>> request2 = tests.HTTPRequest(None, None, {}, None)
-        
+            >>> request2 = tests.HTTPRequest(None, {}, None)
+
             >>> ISession.providedBy(Session(request))
             True
 
