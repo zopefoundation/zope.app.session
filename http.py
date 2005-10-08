@@ -24,7 +24,7 @@ from zope.app.session.interfaces import IClientIdManager
 from zope.app.component.interfaces import ILocalUtility
 from zope import schema
 from zope.interface import implements
-from zope.server.http.http_date import build_http_date
+from zope.app.http.httpdate import build_http_date
 from zope.publisher.interfaces.http import IHTTPApplicationRequest
 import hmac
 import random
