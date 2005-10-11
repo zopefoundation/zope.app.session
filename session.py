@@ -19,7 +19,6 @@ import sha, time, string, random, hmac, warnings, thread, zope.interface
 from UserDict import IterableUserDict
 from heapq import heapify, heappop
 
-from zope.app.i18n import ZopeMessageIDFactory as _
 from persistent import Persistent
 from zope import schema
 from zope.interface import implements
