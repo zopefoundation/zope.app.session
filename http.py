@@ -18,7 +18,7 @@ $Id$
 
 from persistent import Persistent
 from zope.app.annotation.interfaces import IAttributeAnnotatable
-from zope.app.i18n import ZopeMessageIDFactory as _
+from zope.app.i18n import ZopeMessageFactory as _
 from zope.app import zapi
 from zope.app.session.interfaces import IClientIdManager
 from zope.app.component.interfaces import ILocalUtility
