@@ -145,7 +145,7 @@ class ISessionPkgData(IMapping):
     """Storage for a particular product id and browser id's session data
 
     Data is stored persistently and transactionally. Data stored must
-    be persistent or pickable.
+    be persistent or picklable.
 
     """
 
