@@ -332,7 +332,7 @@ class Session(object):
 
 class SessionData(Persistent, IterableUserDict):
     """See zope.app.session.interfaces.ISessionData
-    
+
         >>> session = SessionData()
         >>> ISessionData.providedBy(session)
         True
