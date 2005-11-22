@@ -135,10 +135,10 @@ class ISessionData(IReadMapping, IMapping):
     # We cannot give access to the keys, as they need to remain secret.
 
     def __getitem__(self, browser_id):
-        """Return an ISessionData"""
+        """Return an ISessionPkgData"""
 
-    def __setitem__(self, browser_id, session_data):
-        """Store an ISessionData"""
+    def __setitem__(self, browser_id, session_pkg_data):
+        """Store an ISessionPkgData"""
 
 
 class ISessionPkgData(IMapping):
