@@ -55,7 +55,7 @@ class ISessionDataContainer(IReadMapping, IWriteMapping):
 
     Usage::
 
-      session_data_container[product_id][browser_id][key] = value
+      session_data_container[client_id][product_id][key] = value
 
     Note that this interface does not support the full mapping interface -
     the keys need to remain secret so we can't give access to keys(), 
@@ -106,10 +106,11 @@ class ISession(Interface):
     """
 
     def __getitem__(product_id):
-        """Return the relevant ISessionData
+        """Return the relevant ISessionPkgData
         
         This involves locating the correct ISessionDataContainer for the 
-        given product id and return that product id's ISessionData
+        given product id, determining the client id, and returning the
+        relevant ISessionPkgData.
         
         """
 
@@ -134,10 +135,10 @@ class ISessionData(IReadMapping, IMapping):
     # Note that only IReadMapping and IWriteMaping are implemented.
     # We cannot give access to the keys, as they need to remain secret.
 
-    def __getitem__(self, browser_id):
+    def __getitem__(self, client_id):
         """Return an ISessionPkgData"""
 
-    def __setitem__(self, browser_id, session_pkg_data):
+    def __setitem__(self, client_id, session_pkg_data):
         """Store an ISessionPkgData"""
 
 
