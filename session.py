@@ -82,7 +82,7 @@ class PersistentSessionDataContainer(Persistent, IterableUserDict):
         self.resolution = 50*60
 
     def __getitem__(self, pkg_id):
-        """Retrieve an IApplicationSessionData
+        """Retrieve an ISessionData
 
             >>> sdc = PersistentSessionDataContainer()
 
