@@ -15,6 +15,7 @@
 
 $Id$
 """
+from cStringIO import StringIO
 import sha, time, string, random, hmac, warnings, thread, zope.interface
 from UserDict import IterableUserDict
 from heapq import heapify, heappop
@@ -270,7 +271,7 @@ class Session(object):
 
             >>> import tests
             >>> request = tests.setUp(PersistentSessionDataContainer)
-            >>> request2 = tests.HTTPRequest(None, {}, None)
+            >>> request2 = tests.HTTPRequest(StringIO(''), {}, None)
 
             >>> ISession.providedBy(Session(request))
             True
