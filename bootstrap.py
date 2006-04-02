@@ -41,11 +41,13 @@ def bootStrapSubscriber(event):
         root_folder,
         IClientIdManager, 'CookieClientIdManager',
         CookieClientIdManager,
+        asObject=True,
         )
     ensureUtility(
         root_folder,
         ISessionDataContainer, 'PersistentSessionDataContainer',
         PersistentSessionDataContainer,
+        asObject=True,
         )
 
     transaction.commit()
