@@ -20,22 +20,22 @@ import sha, time, string, random, hmac, warnings, thread, zope.interface
 from UserDict import IterableUserDict
 from heapq import heapify, heappop
 
+import ZODB
+import ZODB.MappingStorage
 from persistent import Persistent
+from BTrees.OOBTree import OOBTree
+
 from zope import schema
 from zope.interface import implements
-from zope.component import ComponentLookupError
-from zope.app.zapi import getUtility
-from BTrees.OOBTree import OOBTree
-from zope.app.annotation.interfaces import IAttributeAnnotatable
+from zope.component import getUtility
+from zope.component.interfaces import ComponentLookupError
+from zope.annotation.interfaces import IAttributeAnnotatable
 
 from interfaces import \
         IClientIdManager, IClientId, ISession, ISessionDataContainer, \
         ISessionPkgData, ISessionData
 
 from http import ICookieClientIdManager
-
-import ZODB
-import ZODB.MappingStorage
 
 __docformat__ = 'restructuredtext'
 
