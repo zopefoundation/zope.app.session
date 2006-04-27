@@ -15,23 +15,23 @@
 
 $Id$
 """
-from cStringIO import StringIO
-from persistent import Persistent
-from zope.app.annotation.interfaces import IAttributeAnnotatable
-from zope.app.i18n import ZopeMessageFactory as _
-from zope.app import zapi
-from zope.app.session.interfaces import IClientIdManager
-from zope.app.component.interfaces import ILocalUtility
-from zope import schema
-from zope.interface import implements
-from zope.app.http.httpdate import build_http_date
-from zope.publisher.interfaces.http import IHTTPApplicationRequest
 import hmac
 import random
 import re
 import sha
 import string
 import time
+from cStringIO import StringIO
+
+from persistent import Persistent
+from zope import schema
+from zope.interface import implements
+from zope.publisher.interfaces.http import IHTTPApplicationRequest
+from zope.annotation.interfaces import IAttributeAnnotatable
+
+from zope.app.i18n import ZopeMessageFactory as _
+from zope.app.session.interfaces import IClientIdManager
+from zope.app.http.httpdate import build_http_date
 
 __docformat__ = 'restructuredtext'
 
@@ -73,9 +73,7 @@ class ICookieClientIdManager(IClientIdManager):
 class CookieClientIdManager(Persistent):
     """Session utility implemented using cookies."""
 
-    implements(IClientIdManager, ICookieClientIdManager,
-               ILocalUtility, IAttributeAnnotatable,
-               )
+    implements(IClientIdManager, ICookieClientIdManager, IAttributeAnnotatable)
 
     __parent__ = __name__ = None
 
