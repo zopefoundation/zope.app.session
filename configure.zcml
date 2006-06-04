@@ -38,6 +38,12 @@
     <require
         set_schema=".http.ICookieClientIdManager"
         permission="zope.ManageServices" />
+    <require
+        interface="zope.location.ILocation"
+        permission="zope.Public" />
+    <require
+        set_schema="zope.location.ILocation"
+        permission="zope.ManageServices" />
   </class>
 
   <class class=".session.PersistentSessionDataContainer">
@@ -47,6 +53,12 @@
     <require
         set_schema=".interfaces.ISessionDataContainer"
         permission="zope.ManageServices" />
+    <require
+        interface="zope.location.ILocation"
+        permission="zope.Public" />
+    <require
+        set_schema="zope.location.ILocation"
+        permission="zope.ManageServices" />
   </class>
 
   <class class=".session.RAMSessionDataContainer">
@@ -55,6 +67,12 @@
         permission="zope.Public" />
     <require
         set_schema=".interfaces.ISessionDataContainer"
+        permission="zope.ManageServices" />
+    <require
+        interface="zope.location.ILocation"
+        permission="zope.Public" />
+    <require
+        set_schema="zope.location.ILocation"
         permission="zope.ManageServices" />
   </class>
 

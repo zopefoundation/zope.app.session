@@ -23,6 +23,7 @@ import string
 import time
 from cStringIO import StringIO
 
+import zope.location
 from persistent import Persistent
 from zope import schema
 from zope.interface import implements
@@ -70,12 +71,10 @@ class ICookieClientIdManager(IClientIdManager):
             missing_value=None,
             )
 
-class CookieClientIdManager(Persistent):
+class CookieClientIdManager(zope.location.Location, Persistent):
     """Session utility implemented using cookies."""
 
     implements(IClientIdManager, ICookieClientIdManager, IAttributeAnnotatable)
-
-    __parent__ = __name__ = None
 
     def __init__(self):
         self.namespace = "zope3_cs_%x" % (int(time.time()) - 1000000000)

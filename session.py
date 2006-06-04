@@ -22,6 +22,7 @@ from heapq import heapify, heappop
 
 import ZODB
 import ZODB.MappingStorage
+import zope.location
 from persistent import Persistent
 from BTrees.OOBTree import OOBTree
 
@@ -68,9 +69,9 @@ class ClientId(str):
                 )
 
 
-class PersistentSessionDataContainer(Persistent, IterableUserDict):
+class PersistentSessionDataContainer(zope.location.Location, Persistent, 
+    IterableUserDict):
     """A SessionDataContainer that stores data in the ZODB"""
-    __parent__ = __name__ = None
 
     implements(ISessionDataContainer, IAttributeAnnotatable)
 
