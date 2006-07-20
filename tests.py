@@ -16,7 +16,8 @@
 $Id$
 """
 from cStringIO import StringIO
-import unittest, doctest, os, os.path, sys
+import unittest, os, os.path, sys
+from zope.testing import doctest
 from zope.app import zapi
 from zope.app.testing import ztapi, placelesssetup
 
