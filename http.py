@@ -178,7 +178,6 @@ class CookieClientIdManager(zope.location.Location, Persistent):
             True
 
         """
-        request = IHTTPApplicationRequest(request)
         # If there is an id set on the response, use that but don't trust it.
         # We need to check the response in case there has already been a new
         # session created during the course of this request.
@@ -186,6 +185,7 @@ class CookieClientIdManager(zope.location.Location, Persistent):
         if response_cookie:
             sid = response_cookie['value']
         else:
+            request = IHTTPApplicationRequest(request)
             sid = request.getCookies().get(self.namespace, None)
         if sid is None or len(sid) != 54:
             return None
