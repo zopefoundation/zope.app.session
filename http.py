@@ -290,8 +290,7 @@ def notifyVirtualHostChanged(event):
         ...         self.request_id = id
         ...
         >>> manager = DummyManager()
-        >>> from zope.app.testing import ztapi
-        >>> ztapi.provideUtility(IClientIdManager, manager)
+        >>> component.provideUtility(manager, IClientIdManager)
         >>> from zope.publisher.http import HTTPRequest
         >>> class DummyEvent (object):
         ...     request = HTTPRequest(StringIO(''), {}, None)
@@ -310,6 +309,11 @@ def notifyVirtualHostChanged(event):
         >>> notifyVirtualHostChanged(event)
         >>> manager.request_id
         'bar'
+        
+    Cleanup of the utility registration:
+    
+        >>> import zope.component.testing
+        >>> zope.component.testing.tearDown()
         
     """
     # the event sends us a IHTTPApplicationRequest, but we need a
