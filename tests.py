@@ -89,11 +89,15 @@ test_documentation.__doc__ = '''
 
     ''' % (open(os.path.join(os.path.dirname(__file__), 'api.txt')).read(),)
 
+def sessionTestTearDown(test=None):
+    ztapi.unprovideUtility(IClientIdManager)
+
 def test_suite():
     suite = unittest.TestSuite()
     suite.addTest(unittest.makeSuite(TestBootstrap))
     suite.addTest(doctest.DocTestSuite())
-    suite.addTest(doctest.DocTestSuite('zope.app.session.session'))
+    suite.addTest(doctest.DocTestSuite('zope.app.session.session',
+                                       tearDown=sessionTestTearDown))
     suite.addTest(doctest.DocTestSuite('zope.app.session.http'))
     return suite
 
