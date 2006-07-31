@@ -90,7 +90,7 @@
       />
       
   <subscriber
-      for="zope.publisher.interfaces.http.IHTTPVirtualHostChanged"
+      for="zope.publisher.interfaces.http.IHTTPVirtualHostChangedEvent"
       handler=".http.notifyVirtualHostChanged"
       />
 

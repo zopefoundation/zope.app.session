@@ -29,7 +29,7 @@ from zope import schema, component
 from zope.interface import implements
 from zope.publisher.interfaces.http import IHTTPRequest
 from zope.publisher.interfaces.http import IHTTPApplicationRequest
-from zope.publisher.interfaces.http import IHTTPVirtualHostChanged
+from zope.publisher.interfaces.http import IHTTPVirtualHostChangedEvent
 from zope.annotation.interfaces import IAttributeAnnotatable
 
 from zope.app.i18n import ZopeMessageFactory as _
@@ -274,7 +274,6 @@ class CookieClientIdManager(zope.location.Location, Persistent):
                     path=request.getApplicationURL(path_only=True)
                     )
 
-@component.adapter(IHTTPVirtualHostChanged)
 def notifyVirtualHostChanged(event):
     """Adjust cookie paths when IVirtualHostRequest information changes.
     
