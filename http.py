@@ -29,7 +29,6 @@ from zope import schema, component
 from zope.interface import implements
 from zope.publisher.interfaces.http import IHTTPRequest
 from zope.publisher.interfaces.http import IHTTPApplicationRequest
-from zope.publisher.interfaces.http import IHTTPVirtualHostChangedEvent
 from zope.annotation.interfaces import IAttributeAnnotatable
 
 from zope.app.i18n import ZopeMessageFactory as _
