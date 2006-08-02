@@ -16,8 +16,13 @@
 $Id: tests.py 26427 2004-07-12 16:05:02Z Zen $
 """
 import unittest
+from zope.component import provideHandler, getGlobalSiteManager
+from zope.app.folder import Folder
+from zope.app.publication.interfaces import IBeforeTraverseEvent
 from zope.app.testing.functional import BrowserTestCase
 from zope.app.zptpage.zptpage import ZPTPage
+
+from interfaces import ISession
 
 class ZPTSessionTest(BrowserTestCase):
     content = u'''
@@ -58,10 +63,50 @@ class ZPTSessionTest(BrowserTestCase):
         response3 = self.fetch()
         self.failUnlessEqual(response3, u'3')
 
-
+class VirtualHostSessionTest(BrowserTestCase):
+    def setUp(self):
+        super(VirtualHostSessionTest, self).setUp()
+        page = ZPTPage()
+        page.source = (u'<div '
+                       u'tal:define="session request/session:products.foo"/>')
+        page.evaluateInlineCode = True
+        root = self.getRootFolder()
+        root['folder'] = Folder()
+        root['folder']['page'] = page
+        self.commit()
+        
+        provideHandler(self.accessSessionOnTraverse, (IBeforeTraverseEvent,))
+        
+    def tearDown(self):
+        getGlobalSiteManager().unregisterHandler(self.accessSessionOnTraverse,
+                                                 (IBeforeTraverseEvent,))
+        
+    def accessSessionOnTraverse(self, event):
+        session = ISession(event.request)
+        
+    def assertCookiePath(self, path):
+        cookie = self.cookies.values()[0]
+        self.assertEqual(cookie['path'], path)
+    
+    def testShortendPath(self):
+        self.publish(
+            '/++skin++Rotterdam/folder/++vh++http:localhost:80/++/page')
+        self.assertCookiePath('/')
+        
+    def testLongerPath(self):
+        self.publish(
+            '/folder/++vh++http:localhost:80/foo/bar/++/page')
+        self.assertCookiePath('/foo/bar')
+        
+    def testDifferentHostname(self):
+        self.publish(
+            '/folder/++vh++http:foo.bar:80/++/page')
+        self.assertCookiePath('/')
+        
 def test_suite():
     return unittest.TestSuite((
         unittest.makeSuite(ZPTSessionTest),
+        unittest.makeSuite(VirtualHostSessionTest),
         ))
 
 if __name__ == '__main__':
