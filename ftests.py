@@ -19,8 +19,6 @@ import unittest
 from zope.app.testing.functional import BrowserTestCase
 from zope.app.zptpage.zptpage import ZPTPage
 
-from interfaces import ISession
-
 class ZPTSessionTest(BrowserTestCase):
     content = u'''
         <div tal:define="
@@ -59,36 +57,11 @@ class ZPTSessionTest(BrowserTestCase):
         self.failUnlessEqual(response2, u'2')
         response3 = self.fetch()
         self.failUnlessEqual(response3, u'3')
-        
 
-class VirtualHostSessionTest(BrowserTestCase):
-    def setUp(self):
-        super(VirtualHostSessionTest, self).setUp()
-        page = ZPTPage()
-        page.source = (u'<div '
-                       u'tal:define="session request/session:products.foo"/>')
-        page.evaluateInlineCode = True
-        root = self.getRootFolder()
-        root['page'] = page
-        self.commit()
-        
-    def tearDown(self):
-        root = self.getRootFolder()
-        del root['page']
-        self.commit()
-        super(VirtualHostSessionTest, self).tearDown()
-    
-    def testShortendPath(self):
-        response = self.publish(
-            '/++skin++Rotterdam/page/++vh++http:localhost:80/++')
-        cookie = self.cookies.values()[0]
-        self.assertEqual(cookie['path'], '/')
-        
 
 def test_suite():
     return unittest.TestSuite((
         unittest.makeSuite(ZPTSessionTest),
-        unittest.makeSuite(VirtualHostSessionTest),
         ))
 
 if __name__ == '__main__':
