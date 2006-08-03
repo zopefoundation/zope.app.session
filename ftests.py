@@ -18,6 +18,7 @@ $Id: tests.py 26427 2004-07-12 16:05:02Z Zen $
 import unittest
 from zope.component import provideHandler, getGlobalSiteManager
 from zope.app.folder import Folder
+from zope.app.folder.interfaces import IRootFolder
 from zope.app.publication.interfaces import IBeforeTraverseEvent
 from zope.app.testing.functional import BrowserTestCase
 from zope.app.zptpage.zptpage import ZPTPage
@@ -67,22 +68,23 @@ class VirtualHostSessionTest(BrowserTestCase):
     def setUp(self):
         super(VirtualHostSessionTest, self).setUp()
         page = ZPTPage()
-        page.source = (u'<div '
-                       u'tal:define="session request/session:products.foo"/>')
+        page.source = u'<div>Foo</div>'
         page.evaluateInlineCode = True
         root = self.getRootFolder()
         root['folder'] = Folder()
         root['folder']['page'] = page
         self.commit()
         
-        provideHandler(self.accessSessionOnTraverse, (IBeforeTraverseEvent,))
+        provideHandler(self.accessSessionOnRootTraverse, 
+                       (IBeforeTraverseEvent,))
         
     def tearDown(self):
-        getGlobalSiteManager().unregisterHandler(self.accessSessionOnTraverse,
-                                                 (IBeforeTraverseEvent,))
+        getGlobalSiteManager().unregisterHandler(
+            self.accessSessionOnRootTraverse, (IBeforeTraverseEvent,))
         
-    def accessSessionOnTraverse(self, event):
-        session = ISession(event.request)
+    def accessSessionOnRootTraverse(self, event):
+        if IRootFolder.providedBy(event.object):
+            session = ISession(event.request)
         
     def assertCookiePath(self, path):
         cookie = self.cookies.values()[0]
