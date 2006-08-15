@@ -23,7 +23,6 @@
       provides="zope.traversing.interfaces.IPathAdapter"
       factory=".session.Session"
       name="session"
-      permission="zope.Public"
       />
 
   <class class=".session.Session">
