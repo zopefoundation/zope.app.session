@@ -5,23 +5,18 @@
     >
     
   <adapter
-      for="zope.publisher.interfaces.IRequest"
-      provides=".interfaces.IClientId"
       factory=".session.ClientId"
       permission="zope.Public" 
       />
 
   <adapter
-      for="zope.publisher.interfaces.IRequest"
-      provides=".interfaces.ISession"
       factory=".session.Session"
       permission="zope.Public"
       />
 
   <adapter
-      for="zope.publisher.interfaces.IRequest"
-      provides="zope.traversing.interfaces.IPathAdapter"
       factory=".session.Session"
+      provides="zope.traversing.interfaces.IPathAdapter"
       name="session"
       />
 
