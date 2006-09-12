@@ -139,6 +139,51 @@ class PersistentSessionDataContainer(zope.location.Location, Persistent,
             >>> sdc['client_id'].lastAccessTime == lastAccessTime
             True
 
+        Next, we test session expiration functionality beyond transactions.
+
+            >>> import transaction
+            >>> from ZODB.DB import DB
+            >>> from ZODB.DemoStorage import DemoStorage
+            >>> sdc = PersistentSessionDataContainer()
+            >>> sdc.timeout = 60
+            >>> sdc.resolution = 3
+            >>> db = DB(DemoStorage('test_storage'))
+            >>> c = db.open()
+            >>> c.root()['sdc'] = sdc
+            >>> sdc['pkg_id'] = sd = SessionData()
+            >>> sd['name'] = 'bob'
+            >>> transaction.commit()
+
+        Access immediately. the data should be accessible.
+
+            >>> c.root()['sdc']['pkg_id']['name']
+            'bob'
+
+        Change the clock time and stale the session data.
+
+            >>> sdc = c.root()['sdc']
+            >>> sd = sdc['pkg_id']
+            >>> sd.lastAccessTime = sd.lastAccessTime - 64
+            >>> sdc._v_last_sweep = sdc._v_last_sweep - 4
+            >>> transaction.commit()
+
+        The data should be garbage collected.
+
+            >>> c.root()['sdc']['pkg_id']['name']
+            Traceback (most recent call last):
+                [...]
+            KeyError: 'pkg_id'
+
+        Then abort transaction and access the same data again.
+        The previous GC was cancelled, but deadline is over.
+        The data should be garbage collected again.
+
+            >>> transaction.abort()
+            >>> c.root()['sdc']['pkg_id']['name']
+            Traceback (most recent call last):
+                [...]
+            KeyError: 'pkg_id'
+
         """
         if self.timeout == 0:
             return IterableUserDict.__getitem__(self, pkg_id)
@@ -148,8 +193,21 @@ class PersistentSessionDataContainer(zope.location.Location, Persistent,
         # TODO: When scheduler exists, sweeping should be done by
         # a scheduled job since we are currently busy handling a
         # request and may end up doing simultaneous sweeps
+
+        # If transaction is aborted after sweep. _v_last_sweep keep
+        # incorrect sweep time. So when self.data is ghost, revert the time
+        # to the previous _v_last_sweep time(_v_old_sweep).
+        if self.data._p_state < 0:
+            try:
+                self._v_last_sweep = self._v_old_sweep
+                del self._v_old_sweep
+            except AttributeError:
+                pass
+
         if self._v_last_sweep + self.resolution < now:
             self.sweep()
+            if getattr(self, '_v_old_sweep', None) is None:
+                self._v_old_sweep = self._v_last_sweep
             self._v_last_sweep = now
 
         rv = IterableUserDict.__getitem__(self, pkg_id)
