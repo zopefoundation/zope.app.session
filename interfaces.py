@@ -149,7 +149,3 @@ class ISessionPkgData(IMapping):
     be persistent or picklable.
 
     """
-
-# BBB, generation 0, 2004-07-12
-
-IBrowserIdManager = IClientIdManager
