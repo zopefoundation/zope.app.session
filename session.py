@@ -343,12 +343,12 @@ class Session(object):
             >>> import tests
             >>> request = tests.setUp(PersistentSessionDataContainer)
 
-           If we use get we get None returned as default if the pkg_id
+           If we use get we get None or default returned if the pkg_id
            is not there.
            
-            >>> session = Session(request).get('not.there')
-            >>> session is None
-            True
+            >>> session = Session(request).get('not.there', 'default')
+            >>> session
+            'default'
             
            This method is lazy and does not create the session data.
             >>> session = Session(request).get('not.there')
@@ -374,12 +374,12 @@ class Session(object):
         try:
             sd = sdc[self.client_id]
         except KeyError:
-            return None
+            return default
         try:
             return sd[pkg_id]
         except KeyError:
-            return None
-
+            return default
+        
 
     def __getitem__(self, pkg_id):
         """See zope.app.session.interfaces.ISession
