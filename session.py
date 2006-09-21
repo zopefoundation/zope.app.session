@@ -328,6 +328,59 @@ class Session(object):
     def __init__(self, request):
         self.client_id = str(IClientId(request))
 
+    def _sdc(self, pkg_id):
+        # Locate the ISessionDataContainer by looking up the named
+        # Utility, and falling back to the unnamed one.
+        try:
+            return getUtility(ISessionDataContainer, pkg_id)
+        except ComponentLookupError:
+            return getUtility(ISessionDataContainer)
+
+    def get(self, pkg_id, default=None):
+
+        """See zope.app.session.interfaces.ISession
+
+            >>> import tests
+            >>> request = tests.setUp(PersistentSessionDataContainer)
+
+           If we use get we get None returned as default if the pkg_id
+           is not there.
+           
+            >>> session = Session(request).get('not.there')
+            >>> session is None
+            True
+            
+           This method is lazy and does not create the session data.
+            >>> session = Session(request).get('not.there')
+            >>> session is None
+            True
+
+           The __getitem__ method instead creates the data.
+            >>> session = Session(request)['not.there']
+            >>> session is None
+            False
+            >>> session = Session(request).get('not.there')
+            >>> session is None
+            False
+            >>> tests.tearDown()
+
+        """
+
+
+        # The ISessionDataContainer contains two levels:
+        # ISessionDataContainer[client_id] == ISessionData
+        # ISessionDataContainer[client_id][pkg_id] == ISessionPkgData
+        sdc = self._sdc(pkg_id)
+        try:
+            sd = sdc[self.client_id]
+        except KeyError:
+            return None
+        try:
+            return sd[pkg_id]
+        except KeyError:
+            return None
+
+
     def __getitem__(self, pkg_id):
         """See zope.app.session.interfaces.ISession
 
@@ -370,13 +423,7 @@ class Session(object):
             >>> tests.tearDown()
 
         """
-
-        # First locate the ISessionDataContainer by looking up
-        # the named Utility, and falling back to the unnamed one.
-        try:
-            sdc = getUtility(ISessionDataContainer, pkg_id)
-        except ComponentLookupError:
-            sdc = getUtility(ISessionDataContainer)
+        sdc = self._sdc(pkg_id)
 
         # The ISessionDataContainer contains two levels:
         # ISessionDataContainer[client_id] == ISessionData

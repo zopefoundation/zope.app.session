@@ -114,6 +114,10 @@ class ISession(Interface):
         
         """
 
+    def get(product_id, default=None):
+        """Return the relevant ISessionPkgData or default if not
+        available"""
+
 
 class ISessionData(IReadMapping, IMapping):
     """Storage for a particular product id's session data
