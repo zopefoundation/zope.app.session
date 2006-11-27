@@ -318,8 +318,8 @@ def notifyVirtualHostChanged(event):
     # IHTTPRequest for the response attribute, and so does the cookie-
     # manager.
     request = IHTTPRequest(event.request, None)
-    manager = component.queryUtility(IClientIdManager)
-    if manager and request and ICookieClientIdManager.providedBy(manager):
-        cookie = request.response.getCookie(manager.namespace)
-        if cookie:
-            manager.setRequestId(request, cookie['value'])
+    for name, manager in component.getUtilitiesFor(IClientIdManager):
+        if manager and request and ICookieClientIdManager.providedBy(manager):
+            cookie = request.response.getCookie(manager.namespace)
+            if cookie:
+                manager.setRequestId(request, cookie['value'])
