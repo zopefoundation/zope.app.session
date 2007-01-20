@@ -20,6 +20,7 @@ import unittest, os, os.path, sys
 from zope.testing import doctest
 from zope.app import zapi
 from zope.app.testing import ztapi, placelesssetup
+import transaction
 
 from zope.app.session.interfaces import IClientId, IClientIdManager, ISession
 from zope.app.session.interfaces import ISessionDataContainer
@@ -89,11 +90,17 @@ test_documentation.__doc__ = '''
 
     ''' % (open(os.path.join(os.path.dirname(__file__), 'api.txt')).read(),)
 
+
+def tearDownTransaction(test):
+    transaction.abort()
+
+
 def test_suite():
     suite = unittest.TestSuite()
     suite.addTest(unittest.makeSuite(TestBootstrap))
     suite.addTest(doctest.DocTestSuite())
-    suite.addTest(doctest.DocTestSuite('zope.app.session.session'))
+    suite.addTest(doctest.DocTestSuite('zope.app.session.session',
+                                       tearDown=tearDownTransaction))
     suite.addTest(doctest.DocTestSuite('zope.app.session.http'))
     return suite
 
