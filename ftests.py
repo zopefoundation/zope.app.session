@@ -13,7 +13,7 @@
 ##############################################################################
 """Session functional tests.
 
-$Id: tests.py 26427 2004-07-12 16:05:02Z Zen $
+$Id$
 """
 import unittest
 from zope.component import provideHandler, getGlobalSiteManager
@@ -22,6 +22,7 @@ from zope.app.folder.interfaces import IRootFolder
 from zope.app.publication.interfaces import IBeforeTraverseEvent
 from zope.app.testing.functional import BrowserTestCase
 from zope.app.zptpage.zptpage import ZPTPage
+from zope.app.session.testing import SessionLayer
 
 from interfaces import ISession
 
@@ -106,6 +107,8 @@ class VirtualHostSessionTest(BrowserTestCase):
         self.assertCookiePath('/')
         
 def test_suite():
+    ZPTSessionTest.layer = SessionLayer
+    VirtualHostSessionTest.layer = SessionLayer
     return unittest.TestSuite((
         unittest.makeSuite(ZPTSessionTest),
         unittest.makeSuite(VirtualHostSessionTest),
