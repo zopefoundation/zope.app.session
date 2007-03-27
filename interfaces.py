@@ -18,8 +18,7 @@ $Id$
 from zope.interface import Interface
 from zope.interface.common.mapping import IMapping, IReadMapping, IWriteMapping
 from zope import schema
-from zope.app.container.interfaces import IContainer
-from zope.app.i18n import ZopeMessageFactory as _
+from zope.app.session.i18n import ZopeMessageFactory as _
 
 __docformat__ = 'restructuredtext'
 

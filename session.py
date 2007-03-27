@@ -16,7 +16,7 @@
 $Id$
 """
 from cStringIO import StringIO
-import sha, time, string, random, hmac, warnings, thread, zope.interface
+import time, string, random, thread
 from UserDict import IterableUserDict
 from heapq import heapify, heappop
 
@@ -26,7 +26,6 @@ import zope.location
 from persistent import Persistent
 from BTrees.OOBTree import OOBTree
 
-from zope import schema
 from zope.interface import implements
 from zope.component import getUtility, adapts
 from zope.component.interfaces import ComponentLookupError
@@ -36,8 +35,6 @@ from zope.annotation.interfaces import IAttributeAnnotatable
 from interfaces import \
         IClientIdManager, IClientId, ISession, ISessionDataContainer, \
         ISessionPkgData, ISessionData
-
-from http import ICookieClientIdManager
 
 __docformat__ = 'restructuredtext'
 
