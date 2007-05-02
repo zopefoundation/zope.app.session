@@ -167,11 +167,11 @@ class CookieClientIdManager(zope.location.Location, Persistent):
     def generateUniqueId(self):
         """Generate a new, random, unique id.
 
-             >>> bim = CookieClientIdManager()
-             >>> id1 = bim.generateUniqueId()
-             >>> id2 = bim.generateUniqueId()
-             >>> id1 != id2
-             True
+          >>> bim = CookieClientIdManager()
+          >>> id1 = bim.generateUniqueId()
+          >>> id2 = bim.generateUniqueId()
+          >>> id1 != id2
+          True
 
         """
         data = "%.20f%.20f%.20f" % (random.random(), time.time(), time.clock())
