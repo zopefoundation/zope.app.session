@@ -194,8 +194,10 @@ def test_suite():
     suite.addTest(unittest.makeSuite(TestBootstrap))
     suite.addTest(doctest.DocTestSuite())
     suite.addTest(doctest.DocTestSuite('zope.app.session.session',
-                                       tearDown=tearDownTransaction))
-    suite.addTest(doctest.DocTestSuite('zope.app.session.http'))
+        tearDown=tearDownTransaction))
+    suite.addTest(doctest.DocTestSuite('zope.app.session.http',
+        optionflags=doctest.NORMALIZE_WHITESPACE|doctest.ELLIPSIS,)
+        )
     suite.addTest(unittest.makeSuite(ZPTSessionTest))
     suite.addTest(unittest.makeSuite(VirtualHostSessionTest))
     return suite
