@@ -23,6 +23,7 @@ from heapq import heapify, heappop
 import ZODB
 import ZODB.MappingStorage
 import zope.location
+import zope.minmax
 from persistent import Persistent
 from BTrees.OOBTree import OOBTree
 
@@ -446,11 +447,70 @@ class SessionData(Persistent, IterableUserDict):
         >>> session.lastAccessTime
         0
 
+    Before the zope.minmax package this class used to have an attribute
+    lastAccessTime initialized in the class itself to zero.
+    To avoid changing the interface, that attribute has been turned into a
+    property.  This part tests the behavior of a legacy session which would
+    have the lastAccessTime attribute loaded from the database.
+    The implementation should work for that case as well as with the new
+    session where lastAccessTime is a property.  These tests will
+    be removed in a later release (see the comments in the code below).
+
+    First, create an instance of SessionData and remove a protected attribute
+    _lastAcessTime from it to make it more like the legacy SessionData.  The
+    subsequent attempt to get lastAccessTime will return a 0, because the
+    lastAccessTime is not there and the dictionary returns the default value
+    zero supplied to its get() method.
+
+        >>> legacy_session = SessionData()
+        >>> del legacy_session._lastAccessTime
+        >>> legacy_session.lastAccessTime
+        0
+
+    Now, artificially add lastAccessTime to the instance's dictionary.
+    This should make it exactly like the legacy SessionData().
+
+        >>> legacy_session.__dict__['lastAccessTime'] = 42
+        >>> legacy_session.lastAccessTime
+        42
+
+    Finally, assign to lastAccessTime.  Since the instance now looks like a
+    legacy instance, this will trigger, through the property mechanism, a
+    creation of a zope.minmax.Maximum() object which will take over the
+    handling of this value and its conflict resolution from now on.
+
+        >>> legacy_session.lastAccessTime = 13
+        >>> legacy_session._lastAccessTime.value
+        13
+
     """
     implements(ISessionData)
-    lastAccessTime = 0
+
+    # this is for support of legacy sessions; this comment and
+    # the next line will be removed in a later release
+    _lastAccessTime = None
+
     def __init__(self):
         self.data = OOBTree()
+        self._lastAccessTime = zope.minmax.Maximum(0)
+
+    def _getLastAccessTime(self):
+        # this conditional is for legacy sessions; this comment and
+        # the next two lines will be removed in a later release
+        if self._lastAccessTime is None:
+            return self.__dict__.get('lastAccessTime', 0)
+        return self._lastAccessTime.value
+
+    def _setLastAccessTime(self, value):
+        # this conditional is for legacy sessions; this comment and
+        # the next two lines will be removed in a later release
+        if self._lastAccessTime is None:
+            self._lastAccessTime = zope.minmax.Maximum(0)
+        self._lastAccessTime.value = value
+
+    lastAccessTime = property(fget=_getLastAccessTime,
+                              fset=_setLastAccessTime,
+                              doc='integer value of the last access time')
 
 
 class SessionPkgData(Persistent, IterableUserDict):
