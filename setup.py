@@ -21,7 +21,7 @@ import os
 from setuptools import setup, find_packages, Extension
 
 setup(name='zope.app.session',
-      version = '3.4.0b1',
+      version = '3.5.0dev',
       url='http://svn.zope.org/zope.app.session',
       license='ZPL 2.1',
       description='Zope session',
@@ -44,6 +44,7 @@ setup(name='zope.app.session',
                         'zope.interface',
                         'zope.location',
                         'zope.publisher',
+                        'zope.minmax',
                         ],
       include_package_data = True,
       zip_safe = False,
