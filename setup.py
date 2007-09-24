@@ -18,34 +18,53 @@ $Id$
 
 import os
 
-from setuptools import setup, find_packages, Extension
+from setuptools import setup, find_packages
+
+def read(*rnames):
+    return open(os.path.join(os.path.dirname(__file__), *rnames)).read()
 
 setup(name='zope.app.session',
-      version = '3.5.0dev',
-      url='http://svn.zope.org/zope.app.session',
-      license='ZPL 2.1',
-      description='Zope session',
-      author='Zope Corporation and Contributors',
-      author_email='zope3-dev@zope.org',
-      packages=find_packages('src'),
-      package_dir = {'': 'src'},
-      namespace_packages=['zope', 'zope.app'],
-      extras_require = dict(test=['zope.app.testing',
-                                  'zope.app.zptpage',
-                                  'zope.app.securitypolicy',
-                                  'zope.app.zcmlfiles']),
-      install_requires=['setuptools',
-                        'ZODB3',
-                        'zope.annotation',
-                        'zope.app.appsetup',
-                        'zope.app.http',
-                        'zope.component',
-                        'zope.i18nmessageid',
-                        'zope.interface',
-                        'zope.location',
-                        'zope.publisher',
-                        'zope.minmax',
-                        ],
-      include_package_data = True,
-      zip_safe = False,
-      )
+    version = '3.4.0',
+    author='Zope Corporation and Contributors',
+    author_email='zope3-dev@zope.org',
+    description='Zope session',
+    long_description=(
+        read('README.txt')
+        + '\n\n' +
+        read('CHANGES.txt')
+        ),
+    license='ZPL 2.1',
+    keywords = "zope3 session",
+    classifiers = [
+        'Development Status :: 5 - Production/Stable',
+        'Environment :: Web Environment',
+        'Intended Audience :: Developers',
+        'License :: OSI Approved :: Zope Public License',
+        'Programming Language :: Python',
+        'Natural Language :: English',
+        'Operating System :: OS Independent',
+        'Topic :: Internet :: WWW/HTTP',
+        'Framework :: Zope3'],
+    url='http://svn.zope.org/zope.app.session',
+    packages=find_packages('src'),
+    package_dir = {'': 'src'},
+    namespace_packages=['zope', 'zope.app'],
+    extras_require = dict(test=['zope.app.testing',
+                                'zope.app.zptpage',
+                                'zope.app.securitypolicy',
+                                'zope.app.zcmlfiles']),
+    install_requires=['setuptools',
+                      'ZODB3',
+                      'zope.annotation',
+                      'zope.app.appsetup',
+                      'zope.app.http',
+                      'zope.component',
+                      'zope.i18nmessageid',
+                      'zope.interface',
+                      'zope.location',
+                      'zope.publisher',
+                      'zope.minmax',
+                      ],
+    include_package_data = True,
+    zip_safe = False,
+    )
