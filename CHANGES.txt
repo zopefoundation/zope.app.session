@@ -1,0 +1,8 @@
+=======
+CHANGES
+=======
+
+Version 3.5.0 (2007/9/24)
+-------------------------
+
+- Initial documented release
