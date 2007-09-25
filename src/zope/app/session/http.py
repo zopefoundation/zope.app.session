@@ -31,8 +31,8 @@ from zope.interface import implements
 from zope.publisher.interfaces.http import IHTTPRequest
 from zope.publisher.interfaces.http import IHTTPApplicationRequest
 from zope.annotation.interfaces import IAttributeAnnotatable
+from zope.i18nmessageid import ZopeMessageFactory as _
 
-from zope.app.session.i18n import ZopeMessageFactory as _
 from zope.app.session.interfaces import IClientIdManager
 from zope.schema.fieldproperty import FieldProperty
 from zope.app.http.httpdate import build_http_date
