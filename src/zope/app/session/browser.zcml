@@ -9,11 +9,11 @@
     title="Cookie Client Id Manager"
     description="Uses a cookie to uniquely identify a client, allowing 
       state to be maintained between requests"
-    class=".http.CookieClientIdManager"
+    class="zope.session.http.CookieClientIdManager"
     permission="zope.ManageServices" />
 
   <editform
-    schema=".http.ICookieClientIdManager"
+    schema="zope.session.http.ICookieClientIdManager"
     label="Cookie Client Id Manager Properties"
     name="edit.html" menu="zmi_views" title="Edit"
     permission="zope.ManageServices" />
@@ -23,7 +23,7 @@
   <addMenuItem
     title="Persistent Session Data Container"
     description="Stores session data persistently in the ZODB"
-    class=".session.PersistentSessionDataContainer"
+    class="zope.session.session.PersistentSessionDataContainer"
     permission="zope.ManageServices" />
 
   <!-- RAMSessionDataContainer -->
@@ -31,12 +31,12 @@
   <addMenuItem
     title="RAM Session Data Container"
     description="Stores session data in RAM"
-    class=".session.RAMSessionDataContainer"
+    class="zope.session.session.RAMSessionDataContainer"
     permission="zope.ManageServices" />
 
   <!-- ISessionDataContainer -->
   <editform
-    schema=".interfaces.ISessionDataContainer"
+    schema="zope.session.interfaces.ISessionDataContainer"
     label="Session Data Container Properties"
     name="edit.html" menu="zmi_views" title="Edit"
     permission="zope.ManageServices" />

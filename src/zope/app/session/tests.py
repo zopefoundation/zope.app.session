@@ -22,30 +22,24 @@ from zope.app import zapi
 from zope.app.testing import ztapi, placelesssetup
 import transaction
 
-from zope.app.session.interfaces import IClientId, IClientIdManager, ISession
-from zope.app.session.interfaces import ISessionDataContainer
-from zope.app.session.interfaces import ISessionPkgData, ISessionData
-
-from zope.app.session.session import ClientId, Session
-from zope.app.session.session import PersistentSessionDataContainer
-from zope.app.session.session import RAMSessionDataContainer
-
-from zope.app.session.http import CookieClientIdManager
+import zope.component
+from zope.session.interfaces import IClientId, IClientIdManager, ISession
+from zope.session.interfaces import ISessionDataContainer
+from zope.session.interfaces import ISessionPkgData, ISessionData
+from zope.session.session import ClientId, Session
+from zope.session.session import PersistentSessionDataContainer
+from zope.session.session import RAMSessionDataContainer
+from zope.session.http import CookieClientIdManager
 
 from zope.publisher.interfaces import IRequest
 from zope.publisher.http import HTTPRequest
 
-from zope.app.appsetup.tests import TestBootstrapSubscriber, EventStub
-from zope.app.appsetup.bootstrap import bootStrapSubscriber
-from zope.app.session.bootstrap import bootStrapSubscriber as \
-     sessionBootstrapSubscriber
-
-from zope.component import provideHandler, getGlobalSiteManager
 from zope.app.folder import Folder
 from zope.app.folder.interfaces import IRootFolder
 from zope.app.publication.interfaces import IBeforeTraverseEvent
 from zope.app.testing.functional import BrowserTestCase
 from zope.app.zptpage.zptpage import ZPTPage
+
 from zope.app.session.testing import SessionLayer
 
 
@@ -63,27 +57,6 @@ def setUp(session_data_container_class=PersistentSessionDataContainer):
 def tearDown():
     placelesssetup.tearDown()
 
-class TestBootstrap(TestBootstrapSubscriber):
-
-    def test_bootstrapSusbcriber(self):
-        bootStrapSubscriber(EventStub(self.db))
-
-        sessionBootstrapSubscriber(EventStub(self.db))
-
-        from zope.app.publication.zopepublication import ZopePublication
-        from zope.app.component.hooks import setSite
-        from zope.app import zapi
-
-        cx = self.db.open()
-        root = cx.root()
-        root_folder = root[ZopePublication.root_name]
-        setSite(root_folder)
-
-        zapi.getUtility(IClientIdManager)
-        zapi.getUtility(ISessionDataContainer)
-
-
-        cx.close()
 
 # Test the code in our API documentation is correct
 def test_documentation():
@@ -101,10 +74,6 @@ test_documentation.__doc__ = '''
 def tearDownTransaction(test):
     transaction.abort()
 
-
-
-
-from interfaces import ISession
 
 class ZPTSessionTest(BrowserTestCase):
     content = u'''
@@ -145,6 +114,7 @@ class ZPTSessionTest(BrowserTestCase):
         response3 = self.fetch()
         self.failUnlessEqual(response3, u'3')
 
+
 class VirtualHostSessionTest(BrowserTestCase):
     def setUp(self):
         super(VirtualHostSessionTest, self).setUp()
@@ -156,11 +126,11 @@ class VirtualHostSessionTest(BrowserTestCase):
         root['folder']['page'] = page
         self.commit()
         
-        provideHandler(self.accessSessionOnRootTraverse, 
+        zope.component.provideHandler(self.accessSessionOnRootTraverse, 
                        (IBeforeTraverseEvent,))
         
     def tearDown(self):
-        getGlobalSiteManager().unregisterHandler(
+        zope.component.getGlobalSiteManager().unregisterHandler(
             self.accessSessionOnRootTraverse, (IBeforeTraverseEvent,))
         
     def accessSessionOnRootTraverse(self, event):
@@ -191,13 +161,7 @@ def test_suite():
     ZPTSessionTest.layer = SessionLayer
     VirtualHostSessionTest.layer = SessionLayer
     suite = unittest.TestSuite()
-    suite.addTest(unittest.makeSuite(TestBootstrap))
     suite.addTest(doctest.DocTestSuite())
-    suite.addTest(doctest.DocTestSuite('zope.app.session.session',
-        tearDown=tearDownTransaction))
-    suite.addTest(doctest.DocTestSuite('zope.app.session.http',
-        optionflags=doctest.NORMALIZE_WHITESPACE|doctest.ELLIPSIS,)
-        )
     suite.addTest(unittest.makeSuite(ZPTSessionTest))
     suite.addTest(unittest.makeSuite(VirtualHostSessionTest))
     return suite
