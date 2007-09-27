@@ -24,7 +24,7 @@ def read(*rnames):
     return open(os.path.join(os.path.dirname(__file__), *rnames)).read()
 
 setup(name='zope.app.session',
-    version = '3.4.1',
+    version = '3.4.2',
     author='Zope Corporation and Contributors',
     author_email='zope3-dev@zope.org',
     description='Zope session',
@@ -64,6 +64,7 @@ setup(name='zope.app.session',
                       'zope.location',
                       'zope.publisher',
                       'zope.minmax',
+                      'zope.session',
                       ],
     include_package_data = True,
     zip_safe = False,

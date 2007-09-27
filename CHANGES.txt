@@ -2,13 +2,21 @@
 CHANGES
 =======
 
-Version 3.4.1 (2007/9/24)
--------------------------
+Version 3.4.2 (2007-09-24)
+--------------------------
+
+- rebumped to replace faulty egg
+
+- added missing dependecy to zope.session
+
+
+Version 3.4.1 (2007-09-24)
+--------------------------
 
 - Added missing files to egg distribution
 
 
-Version 3.4.0 (2007/9/24)
--------------------------
+Version 3.4.0 (2007-09-24)
+--------------------------
 
 - Initial documented release
