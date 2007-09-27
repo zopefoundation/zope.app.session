@@ -2,12 +2,17 @@
 CHANGES
 =======
 
+Version 3.4.3 (2007-09-27)
+--------------------------
+
+* Fix package meta-data.
+
 Version 3.4.2 (2007-09-24)
 --------------------------
 
 - rebumped to replace faulty egg
 
-- added missing dependecy to zope.session
+- added missing dependecy to ``zope.session``
 
 
 Version 3.4.1 (2007-09-24)

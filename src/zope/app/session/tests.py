@@ -125,32 +125,32 @@ class VirtualHostSessionTest(BrowserTestCase):
         root['folder'] = Folder()
         root['folder']['page'] = page
         self.commit()
-        
-        zope.component.provideHandler(self.accessSessionOnRootTraverse, 
+
+        zope.component.provideHandler(self.accessSessionOnRootTraverse,
                        (IBeforeTraverseEvent,))
-        
+
     def tearDown(self):
         zope.component.getGlobalSiteManager().unregisterHandler(
             self.accessSessionOnRootTraverse, (IBeforeTraverseEvent,))
-        
+
     def accessSessionOnRootTraverse(self, event):
         if IRootFolder.providedBy(event.object):
             session = ISession(event.request)
-        
+
     def assertCookiePath(self, path):
         cookie = self.cookies.values()[0]
         self.assertEqual(cookie['path'], path)
-    
+
     def testShortendPath(self):
         self.publish(
             '/++skin++Rotterdam/folder/++vh++http:localhost:80/++/page')
         self.assertCookiePath('/')
-        
+
     def testLongerPath(self):
         self.publish(
             '/folder/++vh++http:localhost:80/foo/bar/++/page')
         self.assertCookiePath('/foo/bar')
-        
+
     def testDifferentHostname(self):
         self.publish(
             '/folder/++vh++http:foo.bar:80/++/page')

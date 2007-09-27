@@ -15,7 +15,6 @@
 
 $Id$
 """
-
 import os
 
 from setuptools import setup, find_packages
@@ -45,11 +44,12 @@ setup(name='zope.app.session',
         'Operating System :: OS Independent',
         'Topic :: Internet :: WWW/HTTP',
         'Framework :: Zope3'],
-    url='http://svn.zope.org/zope.app.session',
+    url='http://cheeseshop.python.org/pypi/zope.app.session',
     packages=find_packages('src'),
     package_dir = {'': 'src'},
     namespace_packages=['zope', 'zope.app'],
-    extras_require = dict(test=['zope.app.testing',
+    extras_require = dict(test=['zope.app.folder',
+                                'zope.app.testing',
                                 'zope.app.zptpage',
                                 'zope.app.securitypolicy',
                                 'zope.app.zcmlfiles']),
@@ -62,8 +62,8 @@ setup(name='zope.app.session',
                       'zope.i18nmessageid',
                       'zope.interface',
                       'zope.location',
-                      'zope.publisher',
                       'zope.minmax',
+                      'zope.publisher',
                       'zope.session',
                       ],
     include_package_data = True,
