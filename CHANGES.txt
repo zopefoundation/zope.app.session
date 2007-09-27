@@ -2,6 +2,13 @@
 CHANGES
 =======
 
+Version 3.5.0 (2007-09-27)
+--------------------------
+
+* A release to override an untagged, unreasoned dev release in
+  ``download.zope.org/distribution``.
+
+
 Version 3.4.3 (2007-09-27)
 --------------------------
 
