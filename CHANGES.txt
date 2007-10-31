@@ -2,33 +2,39 @@
 CHANGES
 =======
 
-Version 3.5.0 (2007-09-27)
---------------------------
+
+3.5.1 (2007-10-31)
+------------------
+
+- Resolve ``ZopeSecurityPolicy`` deprecation warning.
+
+3.5.0 (2007-09-27)
+------------------
 
 * A release to override an untagged, unreasoned dev release in
   ``download.zope.org/distribution``.
 
 
-Version 3.4.3 (2007-09-27)
---------------------------
+3.4.3 (2007-09-27)
+------------------
 
 * Fix package meta-data.
 
-Version 3.4.2 (2007-09-24)
---------------------------
+3.4.2 (2007-09-24)
+------------------
 
 - rebumped to replace faulty egg
 
 - added missing dependecy to ``zope.session``
 
 
-Version 3.4.1 (2007-09-24)
---------------------------
+3.4.1 (2007-09-24)
+------------------
 
 - Added missing files to egg distribution
 
 
-Version 3.4.0 (2007-09-24)
---------------------------
+3.4.0 (2007-09-24)
+------------------
 
 - Initial documented release
