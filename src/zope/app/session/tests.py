@@ -18,7 +18,6 @@ $Id$
 from cStringIO import StringIO
 import unittest, os, os.path
 from zope.testing import doctest
-from zope.app import zapi
 from zope.app.testing import ztapi, placelesssetup
 import transaction
 

@@ -56,7 +56,8 @@ the site administrator to configure where the session data is actually
 stored by adding a registration for desired `ISessionDataContainer`
 with the correct name.
 
-    >>> sdc = zapi.getUtility(ISessionDataContainer, pkg_id)
+    >>> from zope.component import getUtility
+    >>> sdc = getUtility(ISessionDataContainer, pkg_id)
     >>> sdc[client_id][pkg_id] is session
     True
     >>> sdc[client_id][pkg_id]['color']
@@ -68,7 +69,7 @@ a fallback. An unnamed `ISessionDataContainer` is automatically created
 for you, which may replaced with a different implementation if desired.
 
     >>> ISession(request)['unknown'] \
-    ...     is zapi.getUtility(ISessionDataContainer)[client_id]['unknown']
+    ...     is getUtility(ISessionDataContainer)[client_id]['unknown']
     True
 
 The `ISessionDataContainer` contains `ISessionData` objects, and
