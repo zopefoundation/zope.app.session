@@ -131,6 +131,7 @@ class VirtualHostSessionTest(BrowserTestCase):
     def tearDown(self):
         zope.component.getGlobalSiteManager().unregisterHandler(
             self.accessSessionOnRootTraverse, (IBeforeTraverseEvent,))
+        super(VirtualHostSessionTest, self).tearDown()
 
     def accessSessionOnRootTraverse(self, event):
         if IRootFolder.providedBy(event.object):

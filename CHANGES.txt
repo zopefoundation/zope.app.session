@@ -2,6 +2,10 @@
 CHANGES
 =======
 
+3.5.2 (unreleased)
+------------------
+
+- Fixed tearDown-Error in tests.
 
 3.5.1 (2007-10-31)
 ------------------
