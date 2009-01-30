@@ -33,8 +33,8 @@ from zope.session.http import CookieClientIdManager
 from zope.publisher.interfaces import IRequest
 from zope.publisher.http import HTTPRequest
 
-from zope.app.folder import Folder
-from zope.app.folder.interfaces import IRootFolder
+from zope.site.folder import Folder
+from zope.site.interfaces import IRootFolder
 from zope.app.publication.interfaces import IBeforeTraverseEvent
 from zope.app.testing.functional import BrowserTestCase
 from zope.app.zptpage.zptpage import ZPTPage

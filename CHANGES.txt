@@ -2,10 +2,10 @@
 CHANGES
 =======
 
-3.5.3 (unreleased)
+3.6.0 (unreleased)
 ------------------
 
-- 
+- Use ``zope.site`` instead of ``zope.app.folder`` in tests.
 
 3.5.2 (2009-01-27)
 ------------------
