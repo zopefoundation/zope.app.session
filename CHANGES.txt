@@ -2,10 +2,10 @@
 CHANGES
 =======
 
-3.6.0 (unreleased)
+3.6.1 (unreleased)
 ------------------
 
-- ...
+- Include meta.zcml from zope.securitypolicy
 
 3.6.0 (2009-02-01)
 ------------------
