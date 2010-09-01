@@ -16,14 +16,10 @@
 $Id$
 """
 
-import zope.deferredimport
-
-zope.deferredimport.deprecated(
-    "It has moved to zope.session.http  This reference will be gone sometimes.",
-    ICookieClientIdManager = 'zope.session.http:ICookieClientIdManager',
-    MissingClientIdException = 'zope.session.http:MissingClientIdException',
-    notifyVirtualHostChanged = 'zope.session.http:notifyVirtualHostChanged',
-    CookieClientIdManager = 'zope.session.http:CookieClientIdManager',
-    digestEncode = 'zope.session.http:digestEncode',
-    cookieSafeTrans = 'zope.session.http:cookieSafeTrans',
-    )
+# BBB
+from zope.session.http import (ICookieClientIdManager,
+                               MissingClientIdException,
+                               notifyVirtualHostChanged,
+                               CookieClientIdManager,
+                               digestEncode,
+                               cookieSafeTrans)

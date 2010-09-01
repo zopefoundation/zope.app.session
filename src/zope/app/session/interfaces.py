@@ -16,14 +16,10 @@
 $Id$
 """
 
-import zope.deferredimport
-
-zope.deferredimport.deprecated(
-    "It has moved to zope.session.interfaces  This reference will be gone sometimes.",
-    IClientIdManager = 'zope.session.interfaces:IClientIdManager',
-    IClientId = 'zope.session.interfaces:IClientId',
-    ISessionDataContainer = 'zope.session.interfaces:ISessionDataContainer',
-    ISession = 'zope.session.interfaces:ISession',
-    ISessionData = 'zope.session.interfaces:ISessionData',
-    ISessionPkgData = 'zope.session.interfaces:ISessionPkgData',
-    )
+# BBB
+from zope.session.interfaces import (IClientIdManager,
+                                     IClientId,
+                                     ISessionDataContainer,
+                                     ISession,
+                                     ISessionData,
+                                     ISessionPkgData)

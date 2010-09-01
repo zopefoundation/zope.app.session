@@ -16,16 +16,12 @@
 $Id$
 """
 
-import zope.deferredimport
-
-zope.deferredimport.deprecated(
-    "It has moved to zope.session.session  This reference will be gone sometimes.",
-    SessionData = 'zope.session.session:SessionData',
-    SessionPkgData = 'zope.session.session:SessionPkgData',
-    Session = 'zope.session.session:Session',
-    RAMSessionDataContainer = 'zope.session.session:RAMSessionDataContainer',
-    PersistentSessionDataContainer = 'zope.session.session:PersistentSessionDataContainer',
-    ClientId = 'zope.session.session:ClientId',
-    digestEncode = 'zope.session.session:digestEncode',
-    cookieSafeTrans = 'zope.session.session:cookieSafeTrans',
-    )
+# BBB
+from zope.session.session import (SessionData,
+                                  SessionPkgData,
+                                  Session,
+                                  RAMSessionDataContainer,
+                                  PersistentSessionDataContainer,
+                                  ClientId,
+                                  digestEncode,
+                                  cookieSafeTrans)
