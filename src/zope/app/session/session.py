@@ -13,7 +13,6 @@
 ##############################################################################
 """Session implementation
 
-$Id$
 """
 
 # BBB
@@ -23,5 +22,4 @@ from zope.session.session import (SessionData,
                                   RAMSessionDataContainer,
                                   PersistentSessionDataContainer,
                                   ClientId,
-                                  digestEncode,
-                                  cookieSafeTrans)
+                                  digestEncode)

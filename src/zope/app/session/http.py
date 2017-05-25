@@ -13,7 +13,6 @@
 ##############################################################################
 """Session implementation using cookies
 
-$Id$
 """
 
 # BBB
@@ -21,5 +20,4 @@ from zope.session.http import (ICookieClientIdManager,
                                MissingClientIdException,
                                notifyVirtualHostChanged,
                                CookieClientIdManager,
-                               digestEncode,
-                               cookieSafeTrans)
+                               digestEncode)

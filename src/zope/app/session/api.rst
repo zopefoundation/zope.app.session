@@ -1,8 +1,13 @@
-Zope3 Session Implementation
-============================
+==============================
+ Zope3 Session Implementation
+==============================
+
+.. note:: All interfaces and implementations provided by this package
+          have been migrated to ``zope.session``. This package now
+          merely provides ZMI menu configuration.
 
 Overview
---------
+========
 
 .. CAUTION::
     Session data is maintained on the server. This gives a security
@@ -22,17 +27,24 @@ We do this by having a unique identifier stored across multiple
 HTTP requests, be it a cookie or some id mangled into the URL.
 
 
-The `IClientIdManager` Utility provides this unique id. It is
-responsible for propagating this id so that future requests from
-the client get the same id (eg. by setting an HTTP cookie). This
-utility is used when we adapt the request to the unique client id:
+The ``IClientIdManager`` Utility provides this unique id. It is
+responsible for propagating this id so that future requests from the
+client get the same id (eg. by setting an HTTP cookie). (Note that
+this, and all interfaces, are imported from this package for
+demonstration purposes only. They have been moved to
+``zope.session.interfaces``) This utility is used when we adapt the
+request to the unique client id:
 
+    >>> from zope.app.session.interfaces import IClientId
+    >>> IClientId
+    <InterfaceClass zope.session.interfaces.IClientId>
     >>> client_id = IClientId(request)
 
-The `ISession` adapter gives us a mapping that can be used to store
+The ``ISession`` adapter gives us a mapping that can be used to store
 and retrieve session data. A unique key (the package id) is used
 to avoid namespace clashes:
 
+    >>> from zope.app.session.interfaces import ISession
     >>> pkg_id = 'products.foo'
     >>> session = ISession(request)[pkg_id]
     >>> session['color'] = 'red'
@@ -47,15 +59,16 @@ to avoid namespace clashes:
 
 
 Data Storage
-------------
+============
 
-The actual data is stored in an `ISessionDataContainer` utility.
-`ISession` chooses which `ISessionDataContainer` should be used by
+The actual data is stored in an ``ISessionDataContainer`` utility.
+``ISession`` chooses which ``ISessionDataContainer`` should be used by
 looking up as a named utility using the package id. This allows
 the site administrator to configure where the session data is actually
-stored by adding a registration for desired `ISessionDataContainer`
+stored by adding a registration for desired ``ISessionDataContainer``
 with the correct name.
 
+    >>> from zope.app.session.interfaces import ISessionDataContainer
     >>> from zope.component import getUtility
     >>> sdc = getUtility(ISessionDataContainer, pkg_id)
     >>> sdc[client_id][pkg_id] is session
@@ -63,33 +76,34 @@ with the correct name.
     >>> sdc[client_id][pkg_id]['color']
     'red'
 
-If no `ISessionDataContainer` utility can be located by name using the
-package id, then the unnamed `ISessionDataContainer` utility is used as
-a fallback. An unnamed `ISessionDataContainer` is automatically created
+If no ``ISessionDataContainer`` utility can be located by name using the
+package id, then the unnamed ``ISessionDataContainer`` utility is used as
+a fallback. An unnamed ``ISessionDataContainer`` is automatically created
 for you, which may replaced with a different implementation if desired.
 
     >>> ISession(request)['unknown'] \
     ...     is getUtility(ISessionDataContainer)[client_id]['unknown']
     True
 
-The `ISessionDataContainer` contains `ISessionData` objects, and
-`ISessionData` objects in turn contain `ISessionPkgData` objects. You
+The ``ISessionDataContainer`` contains ``ISessionData`` objects, and
+``ISessionData`` objects in turn contain ``ISessionPkgData`` objects. You
 should never need to know this unless you are writing administrative
 views for the session machinery.
 
+    >>> from zope.app.session.interfaces import ISessionData, ISessionPkgData
     >>> ISessionData.providedBy(sdc[client_id])
     True
     >>> ISessionPkgData.providedBy(sdc[client_id][pkg_id])
     True
 
-The `ISessionDataContainer` is responsible for expiring session data.
-The expiry time can be configured by settings its `timeout` attribute.
+The ``ISessionDataContainer`` is responsible for expiring session data.
+The expiry time can be configured by settings its ``timeout`` attribute.
 
     >>> sdc.timeout = 1200 # 1200 seconds or 20 minutes
 
 
 Restrictions
-------------
+============
 
 Data stored in the session must be persistent or picklable.
 
@@ -98,14 +112,16 @@ Data stored in the session must be persistent or picklable.
     >>> transaction.commit()
     Traceback (most recent call last):
         [...]
-    TypeError: can't pickle file objects
+    TypeError: cannot serialize ...
 
-    Clean up:
+..
+ Clean up:
+
     >>> transaction.abort()
 
 
 Page Templates
---------------
+==============
 
     Session data may be accessed in page template documents using
     TALES::
@@ -126,4 +142,3 @@ Page Templates
 
             <span tal:content="session/count" />
         </div>
-

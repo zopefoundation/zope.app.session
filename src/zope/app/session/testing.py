@@ -13,15 +13,20 @@
 ##############################################################################
 """zope.app.session common test related classes/functions/objects.
 
-$Id$
 """
 
 __docformat__ = "reStructuredText"
 
-import os
-from zope.app.testing.functional import ZCMLLayer
 
-SessionLayer = ZCMLLayer(
-    os.path.join(os.path.split(__file__)[0], 'ftesting.zcml'),
-    __name__, 'SessionLayer', allow_teardown=True)
+from zope.app.wsgi.testlayer import BrowserLayer
+from zope.testbrowser.wsgi import TestBrowserLayer
 
+import zope.app.session
+
+class _SessionLayer(BrowserLayer,
+                    TestBrowserLayer):
+    pass
+
+SessionLayer = _SessionLayer(
+    zope.app.session,
+    allowTearDown=True)
