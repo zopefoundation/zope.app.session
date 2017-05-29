@@ -13,65 +13,183 @@
 ##############################################################################
 """Session tests
 
-$Id$
 """
-from cStringIO import StringIO
-import unittest, os, os.path
+from io import BytesIO
+import unittest
 import doctest
-from zope.app.testing import ztapi, placelesssetup
+import re
+
 import transaction
 
-import zope.component
-from zope.session.interfaces import IClientId, IClientIdManager, ISession
-from zope.session.interfaces import ISessionDataContainer
-from zope.session.interfaces import ISessionPkgData, ISessionData
-from zope.session.session import ClientId, Session
-from zope.session.session import PersistentSessionDataContainer
-from zope.session.session import RAMSessionDataContainer
-from zope.session.http import CookieClientIdManager
+from zope import component
+from zope.component import testing as placelesssetup
+from zope.testing import renormalizing
 
 from zope.publisher.interfaces import IRequest
-from zope.publisher.http import HTTPRequest
+from zope.publisher.browser import TestRequest
 
 from zope.site.folder import Folder
 from zope.site.interfaces import IRootFolder
 from zope.app.publication.interfaces import IBeforeTraverseEvent
-from zope.app.testing.functional import BrowserTestCase
-from zope.app.zptpage.zptpage import ZPTPage
 
+
+# We continue to use the old imports to make sure that backwards
+# compatibility holds.
+from zope.app.session.interfaces import IClientId, IClientIdManager, ISession
+from zope.app.session.interfaces import ISessionDataContainer
+from zope.app.session.interfaces import ISessionPkgData, ISessionData
+from zope.app.session.session import ClientId, Session
+from zope.app.session.session import PersistentSessionDataContainer
+from zope.app.session.session import RAMSessionDataContainer
+from zope.app.session.http import CookieClientIdManager
 from zope.app.session.testing import SessionLayer
 
 
-def setUp(session_data_container_class=PersistentSessionDataContainer):
+def setUp(test, session_data_container_class=RAMSessionDataContainer):
     placelesssetup.setUp()
-    ztapi.provideAdapter(IRequest, IClientId, ClientId)
-    ztapi.provideAdapter(IRequest, ISession, Session)
-    ztapi.provideUtility(IClientIdManager, CookieClientIdManager())
+    component.provideAdapter(ClientId, (IRequest,), IClientId)
+    component.provideAdapter(Session, (IRequest,), ISession)
+    component.provideUtility(CookieClientIdManager(), IClientIdManager)
     sdc = session_data_container_class()
     for product_id in ('', 'products.foo', 'products.bar', 'products.baz'):
-        ztapi.provideUtility(ISessionDataContainer, sdc, product_id)
-    request = HTTPRequest(StringIO(), {}, None)
+        component.provideUtility(sdc, ISessionDataContainer, product_id)
+    request = TestRequest(BytesIO())
+    test.globs['request'] = request
     return request
 
-def tearDown():
+def tearDown(test):
     placelesssetup.tearDown()
 
 
-# Test the code in our API documentation is correct
-def test_documentation():
-    pass
-test_documentation.__doc__ = '''
-    >>> request = setUp(RAMSessionDataContainer)
+# Previously from zope.app.zptpage
 
-    %s
+from zope.container.contained import Contained
+from persistent import Persistent
+from zope.pagetemplate.pagetemplate import PageTemplate
+from zope.interface import implementer
+from zope.interface import Interface
+from zope.schema import SourceText
+from zope.schema import TextLine
 
-    >>> tearDown()
+from zope.pagetemplate.engine import AppPT
 
-    ''' % (open(os.path.join(os.path.dirname(__file__), 'api.txt')).read(),)
+class IZPTPage(Interface):
+    """ZPT Pages are a persistent implementation of Page Templates."""
+
+    def setSource(text, content_type='text/html'):
+        """Save the source of the page template.
+
+        'text' must be Unicode.
+        """
+
+    def getSource():
+        """Get the source of the page template."""
+
+    source = SourceText(
+        title=u"Source",
+        description=u"The source of the page template.",
+        required=True)
+
+class IRenderZPTPage(Interface):
+
+    content_type = TextLine(
+        title=(u"Content Type"),
+        description=(u"Content type of generated output"),
+        default=u"text/html",
+        required=True)
+
+    def render(request, *args, **kw):
+        """Render the page template.
+
+        The first argument is bound to the top-level 'request'
+        variable. The positional arguments are bound to the 'args'
+        variable and the keyword arguments are bound to the 'options'
+        variable.
+        """
+
+@implementer(IZPTPage, IRenderZPTPage)
+class ZPTPage(AppPT, PageTemplate, Persistent, Contained):
+
+    def getSource(self):
+        raise NotImplementedError()
+
+    def setSource(self, text, content_type='text/html'):
+        self.pt_edit(text, content_type)
+
+    # See zope.app.zptpage.interfaces.IZPTPage
+    source = property(getSource, setSource, None,
+                      """Source of the Page Template.""")
+
+    def pt_getContext(self, instance, request, **_kw):
+        # instance is a View component
+        namespace = super(ZPTPage, self).pt_getContext(**_kw)
+        namespace['template'] = self
+        namespace['request'] = request
+        namespace['container'] = namespace['context'] = instance
+        return namespace
+
+    def pt_getEngineContext(self, namespace):
+        context = self.pt_getEngine().getContext(namespace)
+        context.evaluateInlineCode = self.evaluateInlineCode
+        return context
+
+    def render(self, request, *args, **keywords):
+        instance = self.__parent__
+
+        namespace = self.pt_getContext(instance, request, *args, **keywords)
+        return self.pt_render(namespace, showtal=request.debug.showTAL,
+                              sourceAnnotations=request.debug.sourceAnnotations)
+
+class ZPTPageEval(object):
+
+    context = None
+    request = None
+
+    def index(self, **kw):
+        """Call a Page Template"""
+
+        template = self.context
+        request = self.request
+
+        request.response.setHeader('content-type',
+                                   template.content_type)
+
+        return template.render(request, **kw)
 
 
-def tearDownTransaction(test):
-    transaction.abort()
+from webtest import TestApp
+
+class BrowserTestCase(unittest.TestCase):
+
+    layer = SessionLayer
+
+    last_response = None
+
+    def setUp(self):
+        super(BrowserTestCase, self).setUp()
+
+        self._testapp = TestApp(self.layer.make_wsgi_app())
+
+    def tearDown(self):
+        super(BrowserTestCase, self).tearDown()
+
+    def commit(self):
+        transaction.commit()
+
+    def getRootFolder(self):
+        return self.layer.getRootFolder()
+
+    def publish(self, path, headers=None, env=None):
+        env = env or {}
+        env['wsgi.handleErrors'] = False
+
+        response = self._testapp.get(path, extra_environ=env, headers=headers)
+
+        response.getBody = lambda: response.unicode_normal_body
+        response.getStatus = lambda: response.status_int
+        response.getHeader = lambda n: response.headers[n]
+        self.last_response = response
+        return response
 
 
 class ZPTSessionTest(BrowserTestCase):
@@ -86,35 +204,49 @@ class ZPTSessionTest(BrowserTestCase):
         </div>
         '''
 
+    layer = SessionLayer
+
+    product_ids = ('', 'products.foo', 'products.bar', 'products.baz')
+
     def setUp(self):
-        BrowserTestCase.setUp(self)
+        super(ZPTSessionTest, self).setUp()
         page = ZPTPage()
         page.source = self.content
         page.evaluateInlineCode = True
-        root = self.getRootFolder()
+        root = self.layer.getRootFolder()
         root['page'] = page
+
+        self.sdc = sdc = PersistentSessionDataContainer()
+        for product_id in self.product_ids:
+            component.provideUtility(sdc, ISessionDataContainer, product_id)
+
         self.commit()
 
     def tearDown(self):
-        root = self.getRootFolder()
+        root = self.layer.getRootFolder()
         del root['page']
-        BrowserTestCase.tearDown(self)
+        for product_id in self.product_ids:
+            component.getSiteManager().unregisterUtility(self.sdc, ISessionDataContainer,
+                                                         name=product_id)
+        super(ZPTSessionTest, self).tearDown()
 
     def fetch(self, page='/page'):
         response = self.publish(page)
-        self.failUnlessEqual(response.getStatus(), 200)
+        self.assertEqual(response.getStatus(), 200)
         return response.getBody().strip()
 
     def test(self):
         response1 = self.fetch()
-        self.failUnlessEqual(response1, u'1')
+        self.assertEqual(response1, u'1')
         response2 = self.fetch()
-        self.failUnlessEqual(response2, u'2')
+        self.assertEqual(response2, u'2')
         response3 = self.fetch()
-        self.failUnlessEqual(response3, u'3')
+        self.assertEqual(response3, u'3')
 
 
 class VirtualHostSessionTest(BrowserTestCase):
+    layer = SessionLayer
+
     def setUp(self):
         super(VirtualHostSessionTest, self).setUp()
         page = ZPTPage()
@@ -125,21 +257,22 @@ class VirtualHostSessionTest(BrowserTestCase):
         root['folder']['page'] = page
         self.commit()
 
-        zope.component.provideHandler(self.accessSessionOnRootTraverse,
-                       (IBeforeTraverseEvent,))
+        component.provideHandler(
+            self.accessSessionOnRootTraverse,
+            (IBeforeTraverseEvent,))
 
     def tearDown(self):
-        zope.component.getGlobalSiteManager().unregisterHandler(
+        component.getGlobalSiteManager().unregisterHandler(
             self.accessSessionOnRootTraverse, (IBeforeTraverseEvent,))
         super(VirtualHostSessionTest, self).tearDown()
 
     def accessSessionOnRootTraverse(self, event):
         if IRootFolder.providedBy(event.object):
-            session = ISession(event.request)
+            ISession(event.request)
 
     def assertCookiePath(self, path):
-        cookie = self.cookies.values()[0]
-        self.assertEqual(cookie['path'], path)
+        cookie = self.last_response.headers['Set-Cookie']
+        self.assertIn('Path=' + path, cookie)
 
     def testShortendPath(self):
         self.publish(
@@ -158,13 +291,22 @@ class VirtualHostSessionTest(BrowserTestCase):
 
 
 def test_suite():
-    ZPTSessionTest.layer = SessionLayer
-    VirtualHostSessionTest.layer = SessionLayer
-    suite = unittest.TestSuite()
-    suite.addTest(doctest.DocTestSuite())
-    suite.addTest(unittest.makeSuite(ZPTSessionTest))
-    suite.addTest(unittest.makeSuite(VirtualHostSessionTest))
-    return suite
+    return unittest.TestSuite((
+        doctest.DocTestSuite(),
+        doctest.DocFileSuite(
+            'api.rst',
+            setUp=setUp,
+            tearDown=tearDown,
+            optionflags=(doctest.ELLIPSIS
+                         | doctest.NORMALIZE_WHITESPACE
+                         | renormalizing.IGNORE_EXCEPTION_MODULE_IN_PYTHON2),
+            checker=renormalizing.RENormalizing((
+                (re.compile("TypeError: can't pickle"), 'TypeError: cannot serialize'),
+            )),
+        ),
+        unittest.defaultTestLoader.loadTestsFromName(__name__),
+    ))
+
 
 
 if __name__ == '__main__':

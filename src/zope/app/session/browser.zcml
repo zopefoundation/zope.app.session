@@ -1,4 +1,4 @@
-<configure 
+<configure
   xmlns:zope="http://namespaces.zope.org/zope"
   xmlns="http://namespaces.zope.org/browser"
   i18n_domain="zope">
@@ -7,7 +7,7 @@
 
   <addMenuItem
     title="Cookie Client Id Manager"
-    description="Uses a cookie to uniquely identify a client, allowing 
+    description="Uses a cookie to uniquely identify a client, allowing
       state to be maintained between requests"
     class="zope.session.http.CookieClientIdManager"
     permission="zope.ManageServices" />
