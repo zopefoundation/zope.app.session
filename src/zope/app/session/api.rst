@@ -107,12 +107,15 @@ Restrictions
 
 Data stored in the session must be persistent or picklable.
 
-    >>> session['oops'] = open(__file__)
+    >>> class NoPickle(object):
+    ...     def __getstate__(self):
+    ...         raise TypeError("Cannot serialize")
+    >>> session['oops'] = NoPickle()
     >>> import transaction
     >>> transaction.commit()
     Traceback (most recent call last):
-        [...]
-    TypeError: cannot serialize ...
+    ...
+    TypeError: Cannot serialize
 
 ..
  Clean up:
