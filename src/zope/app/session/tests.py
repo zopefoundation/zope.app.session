@@ -17,7 +17,6 @@
 from io import BytesIO
 import unittest
 import doctest
-import re
 
 import transaction
 
@@ -33,11 +32,24 @@ from zope.site.interfaces import IRootFolder
 from zope.app.publication.interfaces import IBeforeTraverseEvent
 
 
+# Previously from zope.app.zptpage
+
+from zope.container.contained import Contained
+from persistent import Persistent
+from zope.pagetemplate.pagetemplate import PageTemplate
+from zope.interface import implementer
+from zope.interface import Interface
+from zope.schema import SourceText
+from zope.schema import TextLine
+
+from zope.pagetemplate.engine import AppPT
+
+from webtest import TestApp
+
 # We continue to use the old imports to make sure that backwards
 # compatibility holds.
 from zope.app.session.interfaces import IClientId, IClientIdManager, ISession
 from zope.app.session.interfaces import ISessionDataContainer
-from zope.app.session.interfaces import ISessionPkgData, ISessionData
 from zope.app.session.session import ClientId, Session
 from zope.app.session.session import PersistentSessionDataContainer
 from zope.app.session.session import RAMSessionDataContainer
@@ -61,17 +73,6 @@ def tearDown(test):
     placelesssetup.tearDown()
 
 
-# Previously from zope.app.zptpage
-
-from zope.container.contained import Contained
-from persistent import Persistent
-from zope.pagetemplate.pagetemplate import PageTemplate
-from zope.interface import implementer
-from zope.interface import Interface
-from zope.schema import SourceText
-from zope.schema import TextLine
-
-from zope.pagetemplate.engine import AppPT
 
 class IZPTPage(Interface):
     """ZPT Pages are a persistent implementation of Page Templates."""
@@ -157,8 +158,6 @@ class ZPTPageEval(object):
         return template.render(request, **kw)
 
 
-from webtest import TestApp
-
 class BrowserTestCase(unittest.TestCase):
 
     layer = SessionLayer
@@ -169,9 +168,6 @@ class BrowserTestCase(unittest.TestCase):
         super(BrowserTestCase, self).setUp()
 
         self._testapp = TestApp(self.layer.make_wsgi_app())
-
-    def tearDown(self):
-        super(BrowserTestCase, self).tearDown()
 
     def commit(self):
         transaction.commit()
@@ -300,9 +296,6 @@ def test_suite():
             optionflags=(doctest.ELLIPSIS
                          | doctest.NORMALIZE_WHITESPACE
                          | renormalizing.IGNORE_EXCEPTION_MODULE_IN_PYTHON2),
-            checker=renormalizing.RENormalizing((
-                (re.compile("TypeError: can't pickle"), 'TypeError: cannot serialize'),
-            )),
         ),
         unittest.defaultTestLoader.loadTestsFromName(__name__),
     ))
