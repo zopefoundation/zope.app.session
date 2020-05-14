@@ -5,7 +5,9 @@
 4.1.1 (unreleased)
 ==================
 
-- Nothing changed yet.
+- Add support for Python 3.7.
+
+- Drop support for Python 3.5.
 
 
 4.1.0 (2018-10-22)
