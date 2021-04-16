@@ -23,9 +23,11 @@ from zope.testbrowser.wsgi import TestBrowserLayer
 
 import zope.app.session
 
+
 class _SessionLayer(BrowserLayer,
                     TestBrowserLayer):
     pass
+
 
 SessionLayer = _SessionLayer(
     zope.app.session,
