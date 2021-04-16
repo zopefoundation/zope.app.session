@@ -69,9 +69,9 @@ def setUp(test, session_data_container_class=RAMSessionDataContainer):
     test.globs['request'] = request
     return request
 
+
 def tearDown(test):
     placelesssetup.tearDown()
-
 
 
 class IZPTPage(Interface):
@@ -91,6 +91,7 @@ class IZPTPage(Interface):
         description=u"The source of the page template.",
         required=True)
 
+
 class IRenderZPTPage(Interface):
 
     content_type = TextLine(
@@ -107,6 +108,7 @@ class IRenderZPTPage(Interface):
         variable and the keyword arguments are bound to the 'options'
         variable.
         """
+
 
 @implementer(IZPTPage, IRenderZPTPage)
 class ZPTPage(AppPT, PageTemplate, Persistent, Contained):
@@ -138,8 +140,11 @@ class ZPTPage(AppPT, PageTemplate, Persistent, Contained):
         instance = self.__parent__
 
         namespace = self.pt_getContext(instance, request, *args, **keywords)
-        return self.pt_render(namespace, showtal=request.debug.showTAL,
-                              sourceAnnotations=request.debug.sourceAnnotations)
+        return self.pt_render(
+            namespace,
+            showtal=request.debug.showTAL,
+            sourceAnnotations=request.debug.sourceAnnotations)
+
 
 class ZPTPageEval(object):
 
@@ -222,8 +227,8 @@ class ZPTSessionTest(BrowserTestCase):
         root = self.layer.getRootFolder()
         del root['page']
         for product_id in self.product_ids:
-            component.getSiteManager().unregisterUtility(self.sdc, ISessionDataContainer,
-                                                         name=product_id)
+            component.getSiteManager().unregisterUtility(
+                self.sdc, ISessionDataContainer, name=product_id)
         super(ZPTSessionTest, self).tearDown()
 
     def fetch(self, page='/page'):
@@ -299,8 +304,3 @@ def test_suite():
         ),
         unittest.defaultTestLoader.loadTestsFromName(__name__),
     ))
-
-
-
-if __name__ == '__main__':
-    unittest.main()
