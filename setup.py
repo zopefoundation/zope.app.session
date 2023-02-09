@@ -27,7 +27,7 @@ def read(*rnames):
 setup(name='zope.app.session',
       version='5.0.dev0',
       author='Zope Corporation and Contributors',
-      author_email='zope-dev@zope.org',
+      author_email='zope-dev@zope.dev',
       description='Zope session',
       long_description=(
           read('README.rst')
@@ -61,6 +61,7 @@ setup(name='zope.app.session',
       packages=find_packages('src'),
       package_dir={'': 'src'},
       namespace_packages=['zope', 'zope.app'],
+      python_requires='>=3.7',
       extras_require={
           'test': [
               'transaction',
