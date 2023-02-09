@@ -16,9 +16,9 @@
 """
 
 # BBB
-from zope.session.interfaces import (IClientIdManager,
-                                     IClientId,
-                                     ISessionDataContainer,
-                                     ISession,
-                                     ISessionData,
-                                     ISessionPkgData)
+from zope.session.interfaces import IClientId
+from zope.session.interfaces import IClientIdManager
+from zope.session.interfaces import ISession
+from zope.session.interfaces import ISessionData
+from zope.session.interfaces import ISessionDataContainer
+from zope.session.interfaces import ISessionPkgData

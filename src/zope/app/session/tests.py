@@ -14,47 +14,43 @@
 """Session tests
 
 """
-from io import BytesIO
-import unittest
 import doctest
+import unittest
+from io import BytesIO
 
 import transaction
-
-from zope import component
+from persistent import Persistent
+from webtest import TestApp
+from zope.app.publication.interfaces import IBeforeTraverseEvent
 from zope.component import testing as placelesssetup
-from zope.testing import renormalizing
-
-from zope.publisher.interfaces import IRequest
+from zope.container.contained import Contained
+from zope.interface import Interface
+from zope.interface import implementer
+from zope.pagetemplate.engine import AppPT
+from zope.pagetemplate.pagetemplate import PageTemplate
 from zope.publisher.browser import TestRequest
-
+from zope.publisher.interfaces import IRequest
+from zope.schema import SourceText
+from zope.schema import TextLine
 from zope.site.folder import Folder
 from zope.site.interfaces import IRootFolder
-from zope.app.publication.interfaces import IBeforeTraverseEvent
+
+from zope import component
+from zope.app.session.http import CookieClientIdManager
+# We continue to use the old imports to make sure that backwards
+# compatibility holds.
+from zope.app.session.interfaces import IClientId
+from zope.app.session.interfaces import IClientIdManager
+from zope.app.session.interfaces import ISession
+from zope.app.session.interfaces import ISessionDataContainer
+from zope.app.session.session import ClientId
+from zope.app.session.session import PersistentSessionDataContainer
+from zope.app.session.session import RAMSessionDataContainer
+from zope.app.session.session import Session
+from zope.app.session.testing import SessionLayer
 
 
 # Previously from zope.app.zptpage
-
-from zope.container.contained import Contained
-from persistent import Persistent
-from zope.pagetemplate.pagetemplate import PageTemplate
-from zope.interface import implementer
-from zope.interface import Interface
-from zope.schema import SourceText
-from zope.schema import TextLine
-
-from zope.pagetemplate.engine import AppPT
-
-from webtest import TestApp
-
-# We continue to use the old imports to make sure that backwards
-# compatibility holds.
-from zope.app.session.interfaces import IClientId, IClientIdManager, ISession
-from zope.app.session.interfaces import ISessionDataContainer
-from zope.app.session.session import ClientId, Session
-from zope.app.session.session import PersistentSessionDataContainer
-from zope.app.session.session import RAMSessionDataContainer
-from zope.app.session.http import CookieClientIdManager
-from zope.app.session.testing import SessionLayer
 
 
 def setUp(test, session_data_container_class=RAMSessionDataContainer):
@@ -298,9 +294,7 @@ def test_suite():
             'api.rst',
             setUp=setUp,
             tearDown=tearDown,
-            optionflags=(doctest.ELLIPSIS
-                         | doctest.NORMALIZE_WHITESPACE
-                         | renormalizing.IGNORE_EXCEPTION_MODULE_IN_PYTHON2),
+            optionflags=doctest.ELLIPSIS | doctest.NORMALIZE_WHITESPACE,
         ),
         unittest.defaultTestLoader.loadTestsFromName(__name__),
     ))

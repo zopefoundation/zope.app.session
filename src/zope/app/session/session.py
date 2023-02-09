@@ -16,10 +16,10 @@
 """
 
 # BBB
-from zope.session.session import (SessionData,
-                                  SessionPkgData,
-                                  Session,
-                                  RAMSessionDataContainer,
-                                  PersistentSessionDataContainer,
-                                  ClientId,
-                                  digestEncode)
+from zope.session.session import ClientId
+from zope.session.session import PersistentSessionDataContainer
+from zope.session.session import RAMSessionDataContainer
+from zope.session.session import Session
+from zope.session.session import SessionData
+from zope.session.session import SessionPkgData
+from zope.session.session import digestEncode

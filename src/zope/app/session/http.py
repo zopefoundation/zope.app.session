@@ -16,8 +16,8 @@
 """
 
 # BBB
-from zope.session.http import (ICookieClientIdManager,
-                               MissingClientIdException,
-                               notifyVirtualHostChanged,
-                               CookieClientIdManager,
-                               digestEncode)
+from zope.session.http import CookieClientIdManager
+from zope.session.http import ICookieClientIdManager
+from zope.session.http import MissingClientIdException
+from zope.session.http import digestEncode
+from zope.session.http import notifyVirtualHostChanged
