@@ -14,47 +14,43 @@
 """Session tests
 
 """
-from io import BytesIO
-import unittest
 import doctest
+import unittest
+from io import BytesIO
 
 import transaction
-
-from zope import component
+from persistent import Persistent
+from webtest import TestApp
+from zope.app.publication.interfaces import IBeforeTraverseEvent
 from zope.component import testing as placelesssetup
-from zope.testing import renormalizing
-
-from zope.publisher.interfaces import IRequest
+from zope.container.contained import Contained
+from zope.interface import Interface
+from zope.interface import implementer
+from zope.pagetemplate.engine import AppPT
+from zope.pagetemplate.pagetemplate import PageTemplate
 from zope.publisher.browser import TestRequest
-
+from zope.publisher.interfaces import IRequest
+from zope.schema import SourceText
+from zope.schema import TextLine
 from zope.site.folder import Folder
 from zope.site.interfaces import IRootFolder
-from zope.app.publication.interfaces import IBeforeTraverseEvent
+
+from zope import component
+from zope.app.session.http import CookieClientIdManager
+# We continue to use the old imports to make sure that backwards
+# compatibility holds.
+from zope.app.session.interfaces import IClientId
+from zope.app.session.interfaces import IClientIdManager
+from zope.app.session.interfaces import ISession
+from zope.app.session.interfaces import ISessionDataContainer
+from zope.app.session.session import ClientId
+from zope.app.session.session import PersistentSessionDataContainer
+from zope.app.session.session import RAMSessionDataContainer
+from zope.app.session.session import Session
+from zope.app.session.testing import SessionLayer
 
 
 # Previously from zope.app.zptpage
-
-from zope.container.contained import Contained
-from persistent import Persistent
-from zope.pagetemplate.pagetemplate import PageTemplate
-from zope.interface import implementer
-from zope.interface import Interface
-from zope.schema import SourceText
-from zope.schema import TextLine
-
-from zope.pagetemplate.engine import AppPT
-
-from webtest import TestApp
-
-# We continue to use the old imports to make sure that backwards
-# compatibility holds.
-from zope.app.session.interfaces import IClientId, IClientIdManager, ISession
-from zope.app.session.interfaces import ISessionDataContainer
-from zope.app.session.session import ClientId, Session
-from zope.app.session.session import PersistentSessionDataContainer
-from zope.app.session.session import RAMSessionDataContainer
-from zope.app.session.http import CookieClientIdManager
-from zope.app.session.testing import SessionLayer
 
 
 def setUp(test, session_data_container_class=RAMSessionDataContainer):
@@ -87,17 +83,17 @@ class IZPTPage(Interface):
         """Get the source of the page template."""
 
     source = SourceText(
-        title=u"Source",
-        description=u"The source of the page template.",
+        title="Source",
+        description="The source of the page template.",
         required=True)
 
 
 class IRenderZPTPage(Interface):
 
     content_type = TextLine(
-        title=(u"Content Type"),
-        description=(u"Content type of generated output"),
-        default=u"text/html",
+        title=("Content Type"),
+        description=("Content type of generated output"),
+        default="text/html",
         required=True)
 
     def render(request, *args, **kw):
@@ -125,7 +121,7 @@ class ZPTPage(AppPT, PageTemplate, Persistent, Contained):
 
     def pt_getContext(self, instance, request, **_kw):
         # instance is a View component
-        namespace = super(ZPTPage, self).pt_getContext(**_kw)
+        namespace = super().pt_getContext(**_kw)
         namespace['template'] = self
         namespace['request'] = request
         namespace['container'] = namespace['context'] = instance
@@ -146,7 +142,7 @@ class ZPTPage(AppPT, PageTemplate, Persistent, Contained):
             sourceAnnotations=request.debug.sourceAnnotations)
 
 
-class ZPTPageEval(object):
+class ZPTPageEval:
 
     context = None
     request = None
@@ -170,7 +166,7 @@ class BrowserTestCase(unittest.TestCase):
     last_response = None
 
     def setUp(self):
-        super(BrowserTestCase, self).setUp()
+        super().setUp()
 
         self._testapp = TestApp(self.layer.make_wsgi_app())
 
@@ -194,7 +190,7 @@ class BrowserTestCase(unittest.TestCase):
 
 
 class ZPTSessionTest(BrowserTestCase):
-    content = u'''
+    content = '''
         <div tal:define="
                  session request/session:products.foo;
                  dummy python:session.__setitem__(
@@ -210,7 +206,7 @@ class ZPTSessionTest(BrowserTestCase):
     product_ids = ('', 'products.foo', 'products.bar', 'products.baz')
 
     def setUp(self):
-        super(ZPTSessionTest, self).setUp()
+        super().setUp()
         page = ZPTPage()
         page.source = self.content
         page.evaluateInlineCode = True
@@ -229,7 +225,7 @@ class ZPTSessionTest(BrowserTestCase):
         for product_id in self.product_ids:
             component.getSiteManager().unregisterUtility(
                 self.sdc, ISessionDataContainer, name=product_id)
-        super(ZPTSessionTest, self).tearDown()
+        super().tearDown()
 
     def fetch(self, page='/page'):
         response = self.publish(page)
@@ -238,20 +234,20 @@ class ZPTSessionTest(BrowserTestCase):
 
     def test(self):
         response1 = self.fetch()
-        self.assertEqual(response1, u'1')
+        self.assertEqual(response1, '1')
         response2 = self.fetch()
-        self.assertEqual(response2, u'2')
+        self.assertEqual(response2, '2')
         response3 = self.fetch()
-        self.assertEqual(response3, u'3')
+        self.assertEqual(response3, '3')
 
 
 class VirtualHostSessionTest(BrowserTestCase):
     layer = SessionLayer
 
     def setUp(self):
-        super(VirtualHostSessionTest, self).setUp()
+        super().setUp()
         page = ZPTPage()
-        page.source = u'<div>Foo</div>'
+        page.source = '<div>Foo</div>'
         page.evaluateInlineCode = True
         root = self.getRootFolder()
         root['folder'] = Folder()
@@ -265,7 +261,7 @@ class VirtualHostSessionTest(BrowserTestCase):
     def tearDown(self):
         component.getGlobalSiteManager().unregisterHandler(
             self.accessSessionOnRootTraverse, (IBeforeTraverseEvent,))
-        super(VirtualHostSessionTest, self).tearDown()
+        super().tearDown()
 
     def accessSessionOnRootTraverse(self, event):
         if IRootFolder.providedBy(event.object):
@@ -298,9 +294,7 @@ def test_suite():
             'api.rst',
             setUp=setUp,
             tearDown=tearDown,
-            optionflags=(doctest.ELLIPSIS
-                         | doctest.NORMALIZE_WHITESPACE
-                         | renormalizing.IGNORE_EXCEPTION_MODULE_IN_PYTHON2),
+            optionflags=doctest.ELLIPSIS | doctest.NORMALIZE_WHITESPACE,
         ),
         unittest.defaultTestLoader.loadTestsFromName(__name__),
     ))
