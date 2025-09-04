@@ -15,7 +15,6 @@
 """
 import os
 
-from setuptools import find_packages
 from setuptools import setup
 
 
@@ -58,9 +57,6 @@ setup(name='zope.app.session',
           'Framework :: Zope :: 3',
       ],
       url='https://github.com/zopefoundation/zope.app.session',
-      packages=find_packages('src'),
-      package_dir={'': 'src'},
-      namespace_packages=['zope', 'zope.app'],
       python_requires='>=3.9',
       extras_require={
           'test': [
@@ -80,7 +76,7 @@ setup(name='zope.app.session',
               'zope.site',
               'zope.testbrowser',
               'zope.testing',
-              'zope.testrunner',
+              'zope.testrunner >= 6.4',
           ],
       },
       install_requires=[
