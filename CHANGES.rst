@@ -9,6 +9,8 @@
 
 - Drop support for Python 3.10, 3.9.
 
+- Move package metadata from setup.py to pyproject.toml.
+
 
 6.0 (2025-09-12)
 ================
